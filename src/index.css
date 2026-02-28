@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .gradient-brand {
+    @apply bg-gradient-to-r from-brand-600 to-brand-400;
+  }
+
+  .gradient-brand-deep {
+    @apply bg-gradient-to-r from-brand-900 to-brand-700;
+  }
+
+  .surface-dark {
+    @apply gradient-brand-deep rounded-2xl p-5 text-white;
+  }
+
+  .btn-primary {
+    @apply gradient-brand text-white font-bold shadow-lg shadow-brand-200
+           hover:shadow-xl hover:shadow-brand-300 active:scale-[0.98] transition-all;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl border border-slate-200/80 shadow-sm
+           hover:shadow-md transition-shadow;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
+}
