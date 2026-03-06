@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Humara — Sistema de Traducci&oacute;n Profesional</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    /* Humara brand palette */
+    --navy: #162447;
+    --navy-light: #1e3260;
+    --blue: #3b7dd8;
+    --blue-light: #5a9ae6;
+    --teal: #4fbfa0;
+    --teal-light: #72d4b8;
+    --green-dot: #6dd5a0;
+
+    /* Light theme */
+    --bg: #ffffff;
+    --bg-soft: #f7f9fc;
+    --bg-alt: #eef2f7;
+    --card: #ffffff;
+    --card-border: #e2e8f0;
+    --card-shadow: 0 1px 3px rgba(22,36,71,0.06), 0 4px 12px rgba(22,36,71,0.04);
+    --card-shadow-hover: 0 4px 12px rgba(22,36,71,0.1), 0 8px 24px rgba(22,36,71,0.06);
+
+    --text: #162447;
+    --text-secondary: #3d5278;
+    --text-muted: #8896ab;
+
+    --green: #16a34a;
+    --orange: #ea580c;
+    --red: #dc2626;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ── Scroll animations ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(59,125,216,0.08) 0%, rgba(79,191,160,0.05) 50%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse 5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+  }
+
+  .hero-logo {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 1.5rem;
+  }
+  .hero-logo img {
+    height: 60px;
+    width: auto;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 18px;
+    border: 1px solid var(--teal);
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--teal);
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
+    letter-spacing: 0.05em;
+    background: rgba(79,191,160,0.06);
+  }
+  .hero-badge .dot {
+    width: 7px; height: 7px;
+    background: var(--green-dot);
+    border-radius: 50%;
+    animation: blink 2s infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.2rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+    color: var(--navy);
+  }
+  .hero h1 .gradient {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 50%, var(--teal) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero p {
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    max-width: 580px;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 3rem;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3.5rem;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-stat {
+    text-align: center;
+  }
+  .hero-stat .number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--blue), var(--teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-stat .label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+  }
+
+  /* ── Sections ── */
+  section {
+    padding: 5rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  section.alt-bg {
+    max-width: 100%;
+    background: var(--bg-soft);
+  }
+  section.alt-bg > .inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--teal);
+    margin-bottom: 0.5rem;
+  }
+
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+    color: var(--navy);
+  }
+
+  .section-desc {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    max-width: 620px;
+    margin-bottom: 2.5rem;
+  }
+
+  /* ── Flow Diagram ── */
+  .flow-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 2.5rem 0;
+    flex-wrap: wrap;
+  }
+
+  .flow-node {
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+  .flow-node .flow-sub {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 400;
+    margin-top: 3px;
+  }
+
+  .flow-arrow {
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    padding: 0 0.75rem;
+  }
+
+  .flow-input { background: rgba(59,125,216,0.08); border: 1px solid rgba(59,125,216,0.2); color: var(--blue); }
+  .flow-input .flow-sub { color: var(--text-muted); }
+  .flow-translate { background: rgba(22,36,71,0.06); border: 1px solid rgba(22,36,71,0.15); color: var(--navy); }
+  .flow-translate .flow-sub { color: var(--text-muted); }
+  .flow-review { background: rgba(79,191,160,0.08); border: 1px solid rgba(79,191,160,0.25); color: #2d8c6f; }
+  .flow-review .flow-sub { color: var(--text-muted); }
+  .flow-output { background: rgba(22,163,74,0.06); border: 1px solid rgba(22,163,74,0.2); color: var(--green); }
+  .flow-output .flow-sub { color: var(--text-muted); }
+
+  /* ── Agent Cards ── */
+  .agents-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .agent-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .agent-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .agent-card .glow {
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    top: -120px; right: -120px;
+    opacity: 0.04;
+  }
+
+  .agent-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .agent-card h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--navy);
+  }
+
+  .agent-card .role {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+
+  .model-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  .agent-card .features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-top: 1rem;
+  }
+  .agent-card .features li {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .agent-card .features .check {
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+
+  /* Agent themes */
+  .theme-translator .glow { background: var(--navy); }
+  .theme-translator .agent-icon { background: rgba(22,36,71,0.06); border: 1px solid rgba(22,36,71,0.12); }
+  .theme-translator .check { color: var(--blue); }
+  .theme-translator .model-badge { background: rgba(59,125,216,0.08); border: 1px solid rgba(59,125,216,0.2); color: var(--blue); }
+
+  .theme-reviewer .glow { background: var(--teal); }
+  .theme-reviewer .agent-icon { background: rgba(79,191,160,0.08); border: 1px solid rgba(79,191,160,0.18); }
+  .theme-reviewer .check { color: var(--teal); }
+  .theme-reviewer .model-badge { background: rgba(79,191,160,0.08); border: 1px solid rgba(79,191,160,0.2); color: #2d8c6f; }
+
+  /* Pipeline step themes */
+  .step-number {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .theme-extract .step-number { background: rgba(59,125,216,0.1); color: var(--blue); border: 2px solid rgba(59,125,216,0.25); }
+  .theme-translator-step .step-number { background: rgba(22,36,71,0.08); color: var(--navy); border: 2px solid rgba(22,36,71,0.2); }
+  .theme-reviewer-step .step-number { background: rgba(79,191,160,0.1); color: #2d8c6f; border: 2px solid rgba(79,191,160,0.25); }
+  .theme-output .step-number { background: rgba(22,163,74,0.08); color: var(--green); border: 2px solid rgba(22,163,74,0.2); }
+
+  /* ── Brain / Knowledge ── */
+  .brain-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+
+  .brain-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .brain-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .brain-card .emoji {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .brain-card h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: var(--navy);
+  }
+
+  .brain-card .count {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--blue), var(--teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.2rem;
+  }
+
+  .brain-card p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ── Quality Section ── */
+  .quality-meter {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-top: 2rem;
+    box-shadow: var(--card-shadow);
+  }
+
+  .meter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .meter-score {
+    font-size: 3.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--teal) 0%, var(--blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .meter-badge {
+    padding: 8px 20px;
+    background: rgba(79,191,160,0.08);
+    border: 1px solid rgba(79,191,160,0.25);
+    border-radius: 100px;
+    color: #2d8c6f;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .meter-bar-container {
+    height: 10px;
+    background: var(--bg-alt);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+
+  .meter-bar {
+    height: 100%;
+    border-radius: 5px;
+    background: linear-gradient(90deg, var(--red) 0%, var(--orange) 35%, var(--teal) 75%, var(--blue) 100%);
+    width: 0%;
+    transition: width 2s ease;
+  }
+  .meter-bar.animate { width: 95%; }
+
+  .meter-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-top: -1rem;
+    margin-bottom: 2rem;
+    font-weight: 500;
+  }
+
+  .dimensions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .dimension {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.75rem 1rem;
+    background: var(--bg-soft);
+    border-radius: 10px;
+  }
+
+  .dimension .dim-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    background: rgba(59,125,216,0.08);
+    flex-shrink: 0;
+  }
+
+  .dimension .dim-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--navy);
+  }
+  .dimension .dim-desc {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  /* ── Doc Types ── */
+  .doc-types {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .doc-type {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .doc-type:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .doc-type .dt-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+  .doc-type h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.3rem; color: var(--navy); }
+  .doc-type p { font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; }
+
+  /* ── Comparison Table ── */
+  .comparison { margin-top: 2.5rem; }
+
+  .comparison table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+  }
+
+  .comparison th, .comparison td {
+    padding: 0.9rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .comparison th {
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    background: var(--bg-soft);
+  }
+
+  .comparison td { font-size: 0.88rem; }
+  .comparison tr:last-child td { border-bottom: none; }
+  .comparison .vs-old { color: var(--text-muted); }
+  .comparison .vs-new { color: #2d8c6f; font-weight: 600; }
+
+  /* ── Commercial Section ── */
+  .commercial-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .commercial-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .commercial-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .commercial-card .card-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+  .commercial-card h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--navy); }
+  .commercial-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(22,36,71,0.04) 0%, rgba(79,191,160,0.06) 100%);
+    border: 1px solid rgba(79,191,160,0.2);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-top: 2rem;
+    text-align: center;
+  }
+  .highlight-box h3 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    color: var(--navy);
+  }
+  .highlight-box p {
+    color: var(--text-secondary);
+    max-width: 580px;
+    margin: 0 auto;
+    font-size: 0.95rem;
+  }
+
+  /* ── Pipeline Detail ── */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .pipeline-step {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .step-connector {
+    width: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .step-line {
+    flex: 1;
+    width: 2px;
+    background: var(--card-border);
+  }
+
+  .step-content {
+    flex: 1;
+    padding: 0 0 2.5rem 1.5rem;
+  }
+
+  .step-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    box-shadow: var(--card-shadow);
+    transition: box-shadow 0.3s;
+  }
+  .step-card:hover { box-shadow: var(--card-shadow-hover); }
+
+  .step-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--navy);
+  }
+
+  .step-card .subtitle {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .step-card .model-badge {
+    margin-bottom: 0.5rem;
+  }
+
+  .step-card ul {
+    list-style: none;
+    margin-top: 0.75rem;
+  }
+  .step-card ul li {
+    padding: 0.3rem 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .step-card ul li::before {
+    content: '';
+    width: 5px; height: 5px;
+    background: var(--teal);
+    border-radius: 50%;
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--card-border);
+    background: var(--bg-soft);
+  }
+  footer .brand-footer {
+    margin-bottom: 0.5rem;
+  }
+  footer .brand-footer img {
+    height: 28px;
+    width: auto;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .agents-grid { grid-template-columns: 1fr; }
+    .brain-grid { grid-template-columns: repeat(2, 1fr); }
+    .commercial-grid { grid-template-columns: 1fr; }
+    .doc-types { grid-template-columns: repeat(2, 1fr); }
+    .hero-stats { flex-direction: column; gap: 1.5rem; }
+    .flow-diagram { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ HERO ════════════════ -->
+<div class="hero">
+
+  <div class="hero-logo">
+    <img src="logo-humara.png" alt="Humara">
+  </div>
+
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Sistema activo
+  </div>
+
+  <h1>
+    Traducci&oacute;n Profesional<br>con Inteligencia Artificial
+  </h1>
+  <p>
+    Sistema con doble agente inteligente.
+    Calidad de traductor p&uacute;blico certificado, velocidad de m&aacute;quina.
+  </p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="number">1,300+</div>
+      <div class="label">T&eacute;rminos en glosarios</div>
+    </div>
+    <div class="hero-stat">
+      <div class="number">7</div>
+      <div class="label">Dimensiones de revisi&oacute;n</div>
+    </div>
+    <div class="hero-stat">
+      <div class="number">2</div>
+      <div class="label">Agentes IA especializados</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ FLOW DIAGRAM ════════════════ -->
+<section class="alt-bg">
+  <div class="inner">
+    <div class="reveal">
+      <div class="section-label">Visi&oacute;n general</div>
+      <h2 class="section-title">C&oacute;mo funciona el sistema</h2>
+      <p class="section-desc">
+        Cada documento pasa por un pipeline de 4 etapas. Dos cerebros de IA trabajan
+        en secuencia: uno traduce, otro revisa. El resultado llega pr&aacute;cticamente listo para certificar.
+      </p>
+    </div>
+
+    <div class="flow-diagram reveal">
+      <div class="flow-node flow-input">
+        PDF / Word / Texto
+        <span class="flow-sub">Cualquier formato</span>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node flow-translate">
+        Agente Traductor
+        <span class="flow-sub">Claude Sonnet</span>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node flow-review">
+        Agente Revisor
+        <span class="flow-sub">Claude Opus</span>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node flow-output">
+        Traducci&oacute;n Certificable
+        <span class="flow-sub">+ Reporte de calidad</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ AGENTS ════════════════ -->
+<section>
+  <div class="reveal">
+    <div class="section-label">Los cerebros</div>
+    <h2 class="section-title">Dos agentes, dos misiones</h2>
+    <p class="section-desc">
+      Cada agente tiene un rol distinto y especializado. Nunca ven lo que hizo el otro.
+      El resultado es una traducci&oacute;n doblemente verificada.
+    </p>
+  </div>
+
+  <div class="agents-grid reveal">
+    <!-- Translator Agent -->
+    <div class="agent-card theme-translator">
+      <div class="glow"></div>
+      <div class="agent-icon">&#127891;</div>
+      <h3>Agente Traductor</h3>
+      <div class="role">Traductor p&uacute;blico certificado con 20+ a&ntilde;os de experiencia</div>
+      <span class="model-badge">&#9889; Claude Sonnet &mdash; R&aacute;pido y preciso</span>
+      <ul class="features">
+        <li><span class="check">&#10003;</span> 7 procedimientos de traducci&oacute;n (Vinay &amp; Darbelnet)</li>
+        <li><span class="check">&#10003;</span> Reglas espec&iacute;ficas por tipo de documento</li>
+        <li><span class="check">&#10003;</span> Detecci&oacute;n autom&aacute;tica de falsos amigos</li>
+        <li><span class="check">&#10003;</span> Espa&ntilde;ol rioplatense formal (sin voseo)</li>
+        <li><span class="check">&#10003;</span> Notas del traductor cuando corresponde</li>
+        <li><span class="check">&#10003;</span> Glosarios especializados inyectados</li>
+        <li><span class="check">&#10003;</span> Bidireccional: EN&harr;ES</li>
+      </ul>
+    </div>
+
+    <!-- Reviewer Agent -->
+    <div class="agent-card theme-reviewer">
+      <div class="glow"></div>
+      <div class="agent-icon">&#128270;</div>
+      <h3>Agente Revisor</h3>
+      <div class="role">Revisor senior &mdash; &Uacute;ltima barrera antes de certificaci&oacute;n</div>
+      <span class="model-badge">&#129504; Claude Opus &mdash; Anal&iacute;tico y estricto</span>
+      <ul class="features">
+        <li><span class="check">&#10003;</span> Revisi&oacute;n en 7 dimensiones de calidad</li>
+        <li><span class="check">&#10003;</span> Sistema de severidad: cr&iacute;tico / mayor / menor</li>
+        <li><span class="check">&#10003;</span> Score num&eacute;rico de calidad (0.00 &ndash; 1.00)</li>
+        <li><span class="check">&#10003;</span> Corrige autom&aacute;ticamente cada error</li>
+        <li><span class="check">&#10003;</span> Reporte detallado con justificaci&oacute;n</li>
+        <li><span class="check">&#10003;</span> Verificaci&oacute;n de consistencia terminol&oacute;gica</li>
+        <li><span class="check">&#10003;</span> Decisi&oacute;n: &iquest;listo para certificar? S&Iacute; / NO</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ BRAIN / KNOWLEDGE ════════════════ -->
+<section class="alt-bg">
+  <div class="inner">
+    <div class="reveal">
+      <div class="section-label">Base de conocimiento</div>
+      <h2 class="section-title">Glosarios profesionales embebidos</h2>
+      <p class="section-desc">
+        Cada agente tiene acceso a glosarios terminol&oacute;gicos especializados seg&uacute;n el tipo de documento.
+        Garantizan consistencia y precisi&oacute;n en cada traducci&oacute;n.
+      </p>
+    </div>
+
+    <div class="brain-grid reveal">
+      <div class="brain-card">
+        <div class="emoji">&#9878;&#65039;</div>
+        <h4>Jur&iacute;dico</h4>
+        <div class="count">300+</div>
+        <p>F&oacute;rmulas legales, sujetos procesales, derecho contractual y societario, registro civil</p>
+      </div>
+      <div class="brain-card">
+        <div class="emoji">&#9881;&#65039;</div>
+        <h4>T&eacute;cnico</h4>
+        <div class="count">200+</div>
+        <p>Automotriz, el&eacute;ctricos, ADAS, mantenimiento, unidades de medida</p>
+      </div>
+      <div class="brain-card">
+        <div class="emoji">&#128200;</div>
+        <h4>Comercial</h4>
+        <div class="count">150+</div>
+        <p>Contabilidad, tributario, banca, comercio internacional, laboral, seguros</p>
+      </div>
+      <div class="brain-card">
+        <div class="emoji">&#9888;&#65039;</div>
+        <h4>Falsos Amigos</h4>
+        <div class="count">80+</div>
+        <p>&ldquo;billion&rdquo; &ne; &ldquo;bill&oacute;n&rdquo;, &ldquo;actual&rdquo; &ne; &ldquo;actual&rdquo; &mdash; cada uno explicado</p>
+      </div>
+      <div class="brain-card">
+        <div class="emoji">&#128214;</div>
+        <h4>Gram&aacute;tica ES</h4>
+        <div class="count">9</div>
+        <p>Reglas embebidas: gerundio, voz pasiva, posesivos, deque&iacute;smo, may&uacute;sculas, puntuaci&oacute;n</p>
+      </div>
+      <div class="brain-card">
+        <div class="emoji">&#127757;</div>
+        <h4>Bidireccional</h4>
+        <div class="count">EN&harr;ES</div>
+        <p>Detecci&oacute;n autom&aacute;tica de idioma fuente. Traduce en ambas direcciones con la misma calidad</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ QUALITY ════════════════ -->
+<section>
+  <div class="reveal">
+    <div class="section-label">Control de calidad</div>
+    <h2 class="section-title">Revisi&oacute;n en 7 dimensiones</h2>
+    <p class="section-desc">
+      El Agente Revisor analiza cada segmento de texto en 7 dimensiones profesionales.
+      Solo aprueba si el score es &ge; 0.95 y hay cero errores cr&iacute;ticos.
+    </p>
+  </div>
+
+  <div class="quality-meter reveal">
+    <div class="meter-header">
+      <div>
+        <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 2px; font-weight: 500;">Quality Score</div>
+        <div class="meter-score">0.95+</div>
+      </div>
+      <div class="meter-badge">&#10003; Listo para certificar</div>
+    </div>
+
+    <div class="meter-bar-container">
+      <div class="meter-bar" id="qualityBar"></div>
+    </div>
+    <div class="meter-labels">
+      <span>0.00 &mdash; Inaceptable</span>
+      <span>0.70 &mdash; Cr&iacute;tico</span>
+      <span>0.90 &mdash; Bueno</span>
+      <span>0.95+ &mdash; Certificable</span>
+    </div>
+
+    <div class="dimensions">
+      <div class="dimension">
+        <div class="dim-icon">&#127919;</div>
+        <div>
+          <div class="dim-name">Exactitud</div>
+          <div class="dim-desc">&iquest;Dice lo mismo?</div>
+        </div>
+      </div>
+      <div class="dimension">
+        <div class="dim-icon">&#128218;</div>
+        <div>
+          <div class="dim-name">Terminolog&iacute;a</div>
+          <div class="dim-desc">&iquest;Consistente y correcta?</div>
+        </div>
+      </div>
+      <div class="dimension">
+        <div class="dim-icon">&#9998;&#65039;</div>
+        <div>
+          <div class="dim-name">Gram&aacute;tica</div>
+          <div class="dim-desc">Ortograf&iacute;a y sintaxis</div>
+        </div>
+      </div>
+      <div class="dimension">
+        <div class="dim-icon">&#127917;</div>
+        <div>
+          <div class="dim-name">Registro</div>
+          <div class="dim-desc">&iquest;Formalidad apropiada?</div>
+        </div>
+      </div>
+      <div class="dimension">
+        <div class="dim-icon">&#128203;</div>
+        <div>
+          <div class="dim-name">Completitud</div>
+          <div class="dim-desc">&iquest;Falta o sobra algo?</div>
+        </div>
+      </div>
+      <div class="dimension">
+        <div class="dim-icon">&#128196;</div>
+        <div>
+          <div class="dim-name">Formato</div>
+          <div class="dim-desc">Estructura preservada</div>
+        </div>
+      </div>
+      <div class="dimension">
+        <div class="dim-icon">&#127758;</div>
+        <div>
+          <div class="dim-name">Adaptaci&oacute;n</div>
+          <div class="dim-desc">Contexto cultural</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ DOC TYPES ════════════════ -->
+<section class="alt-bg">
+  <div class="inner">
+    <div class="reveal">
+      <div class="section-label">Versatilidad</div>
+      <h2 class="section-title">Todos los tipos de documentos</h2>
+      <p class="section-desc">
+        El sistema adapta autom&aacute;ticamente sus glosarios y reglas seg&uacute;n el tipo de documento.
+      </p>
+    </div>
+
+    <div class="doc-types reveal">
+      <div class="doc-type">
+        <div class="dt-icon">&#9878;&#65039;</div>
+        <h4>Jur&iacute;dico</h4>
+        <p>Contratos, poderes, escrituras, sentencias, testamentos</p>
+      </div>
+      <div class="doc-type">
+        <div class="dt-icon">&#128200;</div>
+        <h4>Comercial</h4>
+        <p>Balances, actas, informes anuales, estatutos</p>
+      </div>
+      <div class="doc-type">
+        <div class="dt-icon">&#9881;&#65039;</div>
+        <h4>T&eacute;cnico</h4>
+        <p>Manuales, patentes, fichas t&eacute;cnicas, especificaciones</p>
+      </div>
+      <div class="doc-type">
+        <div class="dt-icon">&#128100;</div>
+        <h4>Civil</h4>
+        <p>Partidas, certificados, documentos de identidad, apostillas</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ COMPARISON ════════════════ -->
+<section>
+  <div class="reveal">
+    <div class="section-label">Antes vs. despu&eacute;s</div>
+    <h2 class="section-title">Lo que cambia con Humara</h2>
+  </div>
+
+  <div class="comparison reveal">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 30%;">Aspecto</th>
+          <th style="width: 35%;">Proceso manual</th>
+          <th style="width: 35%;">Con Humara</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Tiempo por documento</td>
+          <td class="vs-old">2&ndash;8 horas</td>
+          <td class="vs-new">5&ndash;15 minutos</td>
+        </tr>
+        <tr>
+          <td>Consistencia terminol&oacute;gica</td>
+          <td class="vs-old">Depende del traductor</td>
+          <td class="vs-new">Glosario obligatorio (1,300+ t&eacute;rminos)</td>
+        </tr>
+        <tr>
+          <td>Detecci&oacute;n de falsos amigos</td>
+          <td class="vs-old">Memoria humana</td>
+          <td class="vs-new">80+ falsos amigos verificados autom&aacute;ticamente</td>
+        </tr>
+        <tr>
+          <td>Control de calidad</td>
+          <td class="vs-old">Revisi&oacute;n informal</td>
+          <td class="vs-new">7 dimensiones + score num&eacute;rico</td>
+        </tr>
+        <tr>
+          <td>Reporte de errores</td>
+          <td class="vs-old">No existe</td>
+          <td class="vs-new">Reporte con tipo, severidad y justificaci&oacute;n</td>
+        </tr>
+        <tr>
+          <td>Escalabilidad</td>
+          <td class="vs-old">1 documento a la vez</td>
+          <td class="vs-new">M&uacute;ltiples documentos en paralelo</td>
+        </tr>
+        <tr>
+          <td>Formatos soportados</td>
+          <td class="vs-old">Lo que el traductor acepte</td>
+          <td class="vs-new">PDF, Word, texto plano</td>
+        </tr>
+        <tr>
+          <td>Rol del traductor p&uacute;blico</td>
+          <td class="vs-old">Traducir + revisar + certificar</td>
+          <td class="vs-new"><strong>Solo revisar y certificar</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ════════════════ COMMERCIAL ════════════════ -->
+<section class="alt-bg">
+  <div class="inner">
+    <div class="reveal">
+      <div class="section-label">Potencial comercial</div>
+      <h2 class="section-title">Un negocio que escala</h2>
+      <p class="section-desc">
+        El sistema convierte el cuello de botella (la traducci&oacute;n manual) en un proceso casi autom&aacute;tico.
+        La traductora p&uacute;blica se enfoca en lo que solo ella puede hacer: certificar.
+      </p>
+    </div>
+
+    <div class="commercial-grid reveal">
+      <div class="commercial-card">
+        <div class="card-icon">&#9889;</div>
+        <h4>10x m&aacute;s documentos</h4>
+        <p>Lo que antes tomaba un d&iacute;a entero, ahora se procesa en minutos. Misma calidad, 10 veces m&aacute;s volumen.</p>
+      </div>
+      <div class="commercial-card">
+        <div class="card-icon">&#128176;</div>
+        <h4>Margen por documento</h4>
+        <p>El costo de IA por documento es una fracci&oacute;n del precio que paga el cliente. El margen aumenta dr&aacute;sticamente.</p>
+      </div>
+      <div class="commercial-card">
+        <div class="card-icon">&#127919;</div>
+        <h4>Calidad verificable</h4>
+        <p>Cada traducci&oacute;n viene con un reporte de calidad objetivo. Los clientes pueden ver el score y las dimensiones revisadas.</p>
+      </div>
+      <div class="commercial-card">
+        <div class="card-icon">&#128640;</div>
+        <h4>Nuevos servicios</h4>
+        <p>Traducci&oacute;n urgente (same-day), paquetes por volumen, suscripciones mensuales para estudios jur&iacute;dicos y empresas.</p>
+      </div>
+    </div>
+
+    <div class="highlight-box reveal">
+      <h3>La traductora p&uacute;blica no es reemplazada &mdash; es potenciada</h3>
+      <p>
+        El sistema hace el trabajo pesado de traducci&oacute;n y revisi&oacute;n.
+        La traductora p&uacute;blica hace lo que la IA no puede: poner su firma,
+        su fe p&uacute;blica y su criterio profesional. Juntos, son imbatibles.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ PIPELINE DETAIL ════════════════ -->
+<section>
+  <div class="reveal">
+    <div class="section-label">Pipeline detallado</div>
+    <h2 class="section-title">Paso a paso</h2>
+  </div>
+
+  <div class="pipeline reveal">
+    <!-- Step 1 -->
+    <div class="pipeline-step theme-extract">
+      <div class="step-connector">
+        <div class="step-number">1</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-card">
+          <h3>&#128196; Extracci&oacute;n</h3>
+          <div class="subtitle">El documento entra al sistema</div>
+          <ul>
+            <li>Acepta PDF, Word (.docx), texto plano, Markdown</li>
+            <li>Extrae texto con posici&oacute;n, tama&ntilde;o, color y formato</li>
+            <li>Detecta im&aacute;genes, tablas y estructura del documento</li>
+            <li>Genera un JSON normalizado para el pipeline</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="pipeline-step theme-translator-step">
+      <div class="step-connector">
+        <div class="step-number">2</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-card">
+          <h3>&#127891; Traducci&oacute;n profesional</h3>
+          <div class="subtitle">El Agente Traductor procesa cada segmento</div>
+          <span class="model-badge" style="background: rgba(22,36,71,0.05); border: 1px solid rgba(22,36,71,0.15); color: var(--navy);">Claude Sonnet &mdash; r&aacute;pido &amp; preciso</span>
+          <ul>
+            <li>Selecciona el glosario seg&uacute;n tipo de documento</li>
+            <li>Aplica procedimientos de traducci&oacute;n (Vinay &amp; Darbelnet)</li>
+            <li>Verifica falsos amigos autom&aacute;ticamente</li>
+            <li>Respeta reglas gramaticales del espa&ntilde;ol formal</li>
+            <li>Agrega notas del traductor cuando es necesario</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="pipeline-step theme-reviewer-step">
+      <div class="step-connector">
+        <div class="step-number">3</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-card">
+          <h3>&#128270; Revisi&oacute;n estricta</h3>
+          <div class="subtitle">El Agente Revisor verifica y corrige</div>
+          <span class="model-badge" style="background: rgba(79,191,160,0.06); border: 1px solid rgba(79,191,160,0.2); color: #2d8c6f;">Claude Opus &mdash; el modelo m&aacute;s anal&iacute;tico</span>
+          <ul>
+            <li>Revisa en 7 dimensiones de calidad profesional</li>
+            <li>Clasifica cada issue: cr&iacute;tico, mayor o menor</li>
+            <li>Corrige autom&aacute;ticamente cada error encontrado</li>
+            <li>Calcula score num&eacute;rico de calidad</li>
+            <li>Decide si est&aacute; listo para certificaci&oacute;n</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="pipeline-step theme-output">
+      <div class="step-connector">
+        <div class="step-number">4</div>
+        <div class="step-line" style="background: transparent;"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-card">
+          <h3>&#10004; Output final</h3>
+          <div class="subtitle">Listo para la traductora p&uacute;blica</div>
+          <ul>
+            <li><strong>Texto revisado</strong> &mdash; Final, corregido y consistente</li>
+            <li><strong>Reporte de calidad</strong> &mdash; Score + detalle de cada issue</li>
+            <li>Score &ge; 0.95 y 0 errores cr&iacute;ticos = listo para firmar</li>
+            <li>Si hay issues, el reporte explica cada uno con justificaci&oacute;n</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer>
+  <div class="brand-footer">
+    <img src="logo-humara.png" alt="Humara">
+  </div>
+  <p style="color: var(--text-secondary);">Sistema de Traducci&oacute;n Profesional con IA</p>
+  <p style="margin-top: 0.5rem;">
+    Powered by Claude (Anthropic) &bull; Glosarios profesionales &bull; Doble agente IA
+  </p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        const bar = document.getElementById('qualityBar');
+        if (entry.target.contains(bar)) {
+          setTimeout(() => bar.classList.add('animate'), 300);
+        }
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Animate hero stat counter
+  function animateNumber(el, target, suffix = '') {
+    let current = 0;
+    const step = target / (2000 / 16);
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= target) { current = target; clearInterval(timer); }
+      el.textContent = Math.floor(current).toLocaleString() + suffix;
+    }, 16);
+  }
+  setTimeout(() => {
+    const stats = document.querySelectorAll('.hero-stat .number');
+    if (stats[0]) animateNumber(stats[0], 1300, '+');
+  }, 500);
+</script>
+
+</body>
+</html>

@@ -16,8 +16,8 @@
   }
 
   .btn-primary {
-    @apply gradient-brand text-white font-bold shadow-lg shadow-brand-200
-           hover:shadow-xl hover:shadow-brand-300 active:scale-[0.98] transition-all;
+    @apply bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-bold shadow-lg shadow-emerald-200
+           hover:shadow-xl hover:shadow-emerald-300 active:scale-[0.98] transition-all;
   }
 
   .card {
