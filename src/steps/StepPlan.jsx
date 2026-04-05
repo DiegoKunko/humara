@@ -17,7 +17,7 @@ export const StepPlan = ({
   file,
   dir,
 }) => {
-  const isPartida = docType === "partida_nacimiento";
+  const isPartida = docType.startsWith("partida_");
 
   return (
     <div className="space-y-5">

@@ -38,14 +38,16 @@ def review_chunk(client, system_prompt, chunk, model="claude-opus-4-20250514"):
 
     user_message = json.dumps(text_payload, ensure_ascii=False)
 
-    response = client.messages.create(
+    # Use streaming to avoid timeout on long requests (required for Opus)
+    response_text = ""
+    with client.messages.stream(
         model=model,
         max_tokens=16384,
         system=system_prompt,
         messages=[{"role": "user", "content": user_message}],
-    )
-
-    response_text = response.content[0].text
+    ) as stream:
+        for text in stream.text_stream:
+            response_text += text
     # Strip markdown code fences if present
     if response_text.startswith("```"):
         response_text = response_text.split("\n", 1)[1]

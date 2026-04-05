@@ -37,6 +37,7 @@ pipeline/jobs/*/translated.json
 pipeline/jobs/*/proofread.json
 pipeline/jobs/*/status.json
 pipeline/.venv/
+supabase/.temp/
 pipeline/__pycache__/
 pipeline/=*
 __pycache__/
@@ -44,3 +45,6 @@ __pycache__/
 # Client documents (private)
 APC*/
 HUMARA_ADMIN/
+pipeline/.env
+translations/input/
+translations/output/

@@ -13,6 +13,7 @@ import {
 import { Navbar } from "./components/Navbar";
 import { Stepper } from "./components/Stepper";
 import { BottomBar } from "./components/BottomBar";
+import { WhatsAppButton } from "./components/WhatsAppButton";
 import { StepUpload } from "./steps/StepUpload";
 import { StepPlan } from "./steps/StepPlan";
 import { StepDelivery } from "./steps/StepDelivery";
@@ -33,6 +34,8 @@ function Wizard() {
   const [tier, setTier] = useState("standard");
   const [words, setWords] = useState(0);
   const [wordMethod, setWordMethod] = useState(null);
+  const [detectedPages, setDetectedPages] = useState(null);
+  const [detectedNotes, setDetectedNotes] = useState(null);
   const [express, setExpress] = useState(false);
   const [pages, setPages] = useState("");
   const [f, sf] = useState({
@@ -75,7 +78,7 @@ function Wizard() {
   const includes = config?.includes ?? INCLUDES;
 
   // Calculate total
-  const isPartida = docType === "partida_nacimiento";
+  const isPartida = docType.startsWith("partida_");
   const total = isPartida
     ? partidaPricing[tier]?.price ?? 2500
     : calcTotal(words, express);
@@ -92,9 +95,16 @@ function Wizard() {
     if (result) {
       setWords(result.words);
       setWordMethod(result.method);
+      setDetectedPages(result.pages || null);
+      setDetectedNotes(result.notes || null);
+      // Auto-detect translation direction from language
+      if (result.language === "en") setDir("en-es");
+      else if (result.language === "es") setDir("es-en");
     } else {
       setWords(0);
       setWordMethod(null);
+      setDetectedPages(null);
+      setDetectedNotes(null);
     }
     setAnalyzing(false);
   }, []);
@@ -137,6 +147,8 @@ function Wizard() {
     setFile(null);
     setWords(0);
     setWordMethod(null);
+    setDetectedPages(null);
+    setDetectedNotes(null);
     setExpress(false);
     setTier("standard");
     setDocType("general");
@@ -240,6 +252,8 @@ function Wizard() {
               analyzing={analyzing}
               words={words}
               wordMethod={wordMethod}
+              detectedPages={detectedPages}
+              detectedNotes={detectedNotes}
               dir={dir}
               docType={docType}
               total={total}
@@ -316,12 +330,15 @@ function Wizard() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Wizard />} />
-      <Route path="/order/:id" element={<OrderStatus />} />
-      <Route path="/faq" element={<FAQ />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/admin" element={<Admin />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<Wizard />} />
+        <Route path="/order/:id" element={<OrderStatus />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/admin" element={<Admin />} />
+      </Routes>
+      <WhatsAppButton />
+    </>
   );
 }

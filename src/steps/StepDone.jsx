@@ -12,7 +12,7 @@ export const StepDone = ({
   orderId,
   onReset,
 }) => {
-  const isPartida = docType === "partida_nacimiento";
+  const isPartida = docType.startsWith("partida_");
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-brand-50 via-white to-white flex items-center justify-center p-5">

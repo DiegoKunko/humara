@@ -16,14 +16,24 @@ const STATUS_COLORS = {
   failed: "bg-red-100 text-red-700",
 };
 
+const ADMIN_EMAILS = [
+  "andrea.faraco@gmail.com",
+  "dpraderi@gmail.com",
+  "amalvasio@must.com.uy",
+];
+
 export function Admin() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signIn } = useAuth();
   const [tab, setTab] = useState("orders");
   const [orders, setOrders] = useState([]);
   const [configs, setConfigs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingConfig, setEditingConfig] = useState(null);
   const [editValue, setEditValue] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginSent, setLoginSent] = useState(false);
+
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email);
 
   useEffect(() => {
     if (authLoading) return;
@@ -60,7 +70,63 @@ export function Admin() {
     }
   }
 
-  if (authLoading || loading) {
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        <Navbar />
+        <div className="flex items-center justify-center py-32">
+          <div className="animate-spin w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        <Navbar />
+        <div className="max-w-sm mx-auto px-5 py-20 text-center">
+          <h1 className="text-xl font-bold text-brand-900 mb-4">
+            Acceso restringido
+          </h1>
+          {loginSent ? (
+            <p className="text-sm text-slate-500">
+              Te enviamos un link de acceso a <strong>{loginEmail}</strong>.
+              Revisá tu email.
+            </p>
+          ) : (
+            <>
+              <p className="text-sm text-slate-500 mb-6">
+                Ingresá tu email autorizado para acceder al panel.
+              </p>
+              <input
+                type="email"
+                placeholder="tu@email.com"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-brand-400"
+              />
+              <button
+                onClick={async () => {
+                  if (!ADMIN_EMAILS.includes(loginEmail.toLowerCase())) {
+                    alert("Email no autorizado");
+                    return;
+                  }
+                  const { error } = await signIn(loginEmail);
+                  if (!error) setLoginSent(true);
+                }}
+                className="w-full px-4 py-3 rounded-xl bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 transition-colors"
+              >
+                Ingresar
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
         <Navbar />

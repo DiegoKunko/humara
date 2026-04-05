@@ -9,8 +9,8 @@ const FAQS = [
     a: "Traducimos todo tipo de documentos: partidas de nacimiento, contratos, escrituras, certificados, diplomas, estados financieros, manuales técnicos, y más. Aceptamos PDF, Word e imágenes escaneadas.",
   },
   {
-    q: "¿Cómo funciona la traducción con IA?",
-    a: "Tu documento pasa por un pipeline de agentes IA especializados: primero se extrae el texto, luego se traduce con un modelo entrenado específicamente para traducción pública, y finalmente otro agente IA revisa la calidad. Todo es verificado y certificado por un traductor público matriculado.",
+    q: "¿Cómo funciona la Traducción Agéntica?",
+    a: "Tu documento pasa por un sistema de 4 agentes especializados: el Agente Extractor lee y analiza tu documento (incluso escaneados), el Agente Traductor traduce con glosarios profesionales, el Agente Revisor verifica en 7 dimensiones de calidad, y finalmente un traductor público matriculado certifica con firma, sello y timbre.",
   },
   {
     q: "¿La traducción tiene validez legal?",
@@ -26,7 +26,7 @@ const FAQS = [
   },
   {
     q: "¿Qué incluye el precio?",
-    a: "El precio incluye: timbres profesionales, doble verificación por agentes IA, certificación por traductor público, entrega a domicilio, y archivo digital.",
+    a: "El precio incluye todo: timbres profesionales, verificación por 4 agentes especializados, certificación por traductor público matriculado, entrega a domicilio en Montevideo y Ciudad de la Costa, y archivo digital inmediato por email. Sin costos ocultos.",
   },
   {
     q: "¿Qué métodos de pago aceptan?",
@@ -34,7 +34,7 @@ const FAQS = [
   },
   {
     q: "¿Puedo pedir una traducción urgente?",
-    a: "Sí. Para documentos generales podés adelantar 24 horas pagando la tarifa express ($4.2 UYU/palabra). Para partidas de nacimiento ofrecemos entrega en el día.",
+    a: "Sí. Para documentos generales podés adelantar 24 horas pagando la tarifa express ($5 UYU/palabra). Para partidas de nacimiento, matrimonio y defunción ofrecemos entrega en el día.",
   },
 ];
 

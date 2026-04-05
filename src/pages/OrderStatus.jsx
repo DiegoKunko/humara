@@ -102,19 +102,21 @@ export function OrderStatus() {
           ))}
         </div>
 
-        {order.status === "ready" && order.output_path && (
-          <button
-            onClick={async () => {
-              const { data } = await supabase.storage
-                .from("documents")
-                .createSignedUrl(order.output_path, 3600);
-              if (data?.signedUrl) window.open(data.signedUrl);
-            }}
-            className="w-full mt-6 py-4 btn-primary rounded-2xl text-sm flex items-center justify-center gap-2"
-          >
-            <Icon name="download" size={16} color="white" />
-            Descargar traducción
-          </button>
+        {(order.status === "ready" || order.status === "done") && order.output_path && (
+          <div className="mt-6 space-y-3">
+            <button
+              onClick={async () => {
+                const { data } = await supabase.storage
+                  .from("translations")
+                  .createSignedUrl(order.output_path, 3600);
+                if (data?.signedUrl) window.open(data.signedUrl);
+              }}
+              className="w-full py-4 btn-primary rounded-2xl text-sm flex items-center justify-center gap-2"
+            >
+              <Icon name="download" size={16} color="white" />
+              Descargar traducción (Word)
+            </button>
+          </div>
         )}
 
         <Link

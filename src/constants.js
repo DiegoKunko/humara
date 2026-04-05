@@ -2,8 +2,8 @@
 // Production values are loaded from Supabase config table.
 
 export const PRICING = {
-  price_per_word: 3, // UYU por palabra
-  price_per_word_express: 4.2, // UYU por palabra (adelantar 24h)
+  price_per_word: 3.5, // UYU por palabra
+  price_per_word_express: 5, // UYU por palabra (adelantar 24h)
 };
 
 // Tiempos de entrega por volumen de palabras
@@ -22,12 +22,12 @@ export const PARTIDA_PRICING = {
 
 // Qué incluye el servicio
 export const INCLUDES = [
-  "Todo incluido en el precio por palabra",
+  "Todo incluido — sin costos ocultos",
+  "Certificación por traductor público matriculado",
   "Timbres incluidos",
   "Doble verificación por agentes IA",
-  "Certificación por traductor público",
-  "Entrega a domicilio (Montevideo / Ciudad de la Costa)",
-  "Archivo digital vía email y/o WhatsApp",
+  "Entrega a domicilio sin cargo (MVD y Costa)",
+  "Archivo digital inmediato por email",
 ];
 
 // Calcula el tiempo de entrega según cantidad de palabras

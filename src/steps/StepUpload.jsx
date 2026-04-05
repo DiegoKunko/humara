@@ -1,18 +1,113 @@
+import { useEffect, useRef } from "react";
 import { Icon } from "../components/Icon";
-import { Spinner } from "../components/Spinner";
 
-const STEPS = [
-  { icon: "upload", label: "Subí", sub: "tu documento" },
-  { icon: "zap", label: "Cotización", sub: "instantánea" },
-  { icon: "cpu", label: "IA traduce", sub: "y verifica" },
-  { icon: "pen", label: "Certificación", sub: "traductor público" },
-  { icon: "truck", label: "Recibí", sub: "en tu domicilio" },
+const DIR_LABELS = {
+  "en-es": "Inglés \u2192 Espa\u00f1ol",
+  "es-en": "Espa\u00f1ol \u2192 Ingl\u00e9s",
+};
+
+const AGENTS = [
+  {
+    icon: "scan",
+    name: "Agente Extractor",
+    desc: "Lee y analiza cada palabra, incluso documentos escaneados",
+    color: "from-blue-500 to-blue-600",
+    shadow: "shadow-blue-200",
+  },
+  {
+    icon: "globe",
+    name: "Agente Traductor",
+    desc: "Traduce con glosarios especializados por área",
+    color: "from-violet-500 to-violet-600",
+    shadow: "shadow-violet-200",
+  },
+  {
+    icon: "shield",
+    name: "Agente Revisor",
+    desc: "Verifica en 7 dimensiones: terminología, exactitud, estilo y más",
+    color: "from-amber-500 to-amber-600",
+    shadow: "shadow-amber-200",
+  },
+  {
+    icon: "pen",
+    name: "Traductor Público",
+    desc: "Profesional matriculado certifica con firma, sello y timbre",
+    color: "from-emerald-500 to-emerald-600",
+    shadow: "shadow-emerald-200",
+  },
 ];
 
-const DOC_TYPES = [
-  { v: "general", l: "Documento general" },
-  { v: "partida_nacimiento", l: "Partida de nacimiento" },
+const TESTIMONIALS = [
+  { text: "Subí un contrato de 25 páginas al mediodía y al otro día estaba certificado arriba de mi escritorio.", name: "Agustín P.", role: "Comercio exterior", initials: "AP" },
+  { text: "Necesitaba la partida de nacimiento traducida para la ciudadanía italiana. En 24 horas la tenía en casa.", name: "Lucía M.", role: "Trámite de ciudadanía", initials: "LM" },
+  { text: "Tradujimos los estatutos de la sociedad para un inversor extranjero. Impecable y rápido.", name: "Martín R.", role: "Abogado, Estudio Rocha & Asoc.", initials: "MR" },
+  { text: "Los balances auditados de la empresa traducidos con la terminología contable perfecta. Impresionante.", name: "Carolina S.", role: "Contadora, estudio contable", initials: "CS" },
+  { text: "Apostillé un poder notarial y necesitaba la traducción urgente. Me salvaron el trámite.", name: "Federico B.", role: "Despachante de aduana", initials: "FB" },
+  { text: "Necesitaba traducir un manual técnico de 80 páginas. Lo tuve en 48 horas, sin un solo error técnico.", name: "Gonzalo D.", role: "Ingeniero, planta industrial", initials: "GD" },
+  { text: "Mis clientes del exterior necesitan contratos en español. Ahora les resuelvo en el día.", name: "Diego A.", role: "Inmobiliaria Punta del Este", initials: "DA" },
+  { text: "Traduje la historia clínica completa de mi hijo para un tratamiento en el exterior. Todo perfecto.", name: "Valeria G.", role: "Particular", initials: "VG" },
+  { text: "El seguimiento en tiempo real es genial. Ves cómo avanza tu traducción paso a paso.", name: "Sebastián L.", role: "Gerente de operaciones", initials: "SL" },
+  { text: "Pasé de esperar 10 días a tener todo en 24 horas. No vuelvo al traductor de antes.", name: "Paula T.", role: "Asistente legal", initials: "PT" },
 ];
+
+const PARTIDA_OPTIONS = [
+  { v: "partida_nacimiento", l: "Nacimiento", icon: "user" },
+  { v: "partida_matrimonio", l: "Matrimonio", icon: "file" },
+  { v: "partida_defuncion", l: "Defunción", icon: "pen" },
+];
+
+/* Marquee – infinite horizontal scroll */
+function TestimonialMarquee() {
+  const trackRef = useRef(null);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    let frame;
+    let pos = 0;
+    const speed = 0.4; // px per frame
+    const step = () => {
+      pos -= speed;
+      // reset when first set scrolls out
+      const half = track.scrollWidth / 2;
+      if (Math.abs(pos) >= half) pos = 0;
+      track.style.transform = `translateX(${pos}px)`;
+      frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  const cards = TESTIMONIALS.map((t, i) => (
+    <div
+      key={i}
+      className="flex-shrink-0 w-72 bg-white rounded-2xl border border-slate-100 p-5 shadow-sm"
+    >
+      <p className="text-[13px] text-slate-600 leading-relaxed italic mb-3">
+        "{t.text}"
+      </p>
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
+          {t.initials}
+        </div>
+        <div>
+          <p className="text-xs font-bold text-brand-900">{t.name}</p>
+          <p className="text-[10px] text-slate-400">{t.role}</p>
+        </div>
+      </div>
+    </div>
+  ));
+
+  return (
+    <div className="overflow-hidden -mx-5 md:-mx-8">
+      <div ref={trackRef} className="flex gap-4 will-change-transform" style={{ width: "max-content" }}>
+        {cards}
+        {/* duplicate for seamless loop */}
+        {cards.map((c, i) => <div key={`dup-${i}`}>{c}</div>)}
+      </div>
+    </div>
+  );
+}
 
 export const StepUpload = ({
   file,
@@ -20,6 +115,8 @@ export const StepUpload = ({
   analyzing,
   words,
   wordMethod,
+  detectedPages,
+  detectedNotes,
   dir,
   docType,
   total,
@@ -32,287 +129,301 @@ export const StepUpload = ({
   setWords,
   pages,
   setPages,
-}) => (
-  <div className="pt-8 md:pt-12">
-    {/* Main content */}
-    <div className="md:grid md:grid-cols-2 md:gap-12 md:items-start">
-      {/* Left: Hero */}
-      <div>
-        <h1 className="text-2xl md:text-[2.5rem] font-extrabold text-brand-900 tracking-tight leading-[1.1]">
-          Traducciones con{" "}
-          <span className="gradient-brand bg-clip-text text-transparent">
-            agentes IA
-          </span>{" "}
-          certificadas por traductor público
-        </h1>
-        <p className="text-sm md:text-base text-slate-500 mt-3 leading-relaxed">
-          Subí tu documento y recibilo certificado donde quieras.
-          Desde $3 UYU por palabra.
-        </p>
+}) => {
+  const isPartida = docType.startsWith("partida_");
 
-        {/* Includes list */}
-        {includes && (
-          <div className="mt-4">
-            <p className="text-sm font-bold text-brand-900 mb-1.5">
-              🤯 Todo incluido en el precio por palabra
-            </p>
-            <ul className="space-y-1">
-              {includes.slice(1).map((item, i) => (
-                <li
-                  key={i}
-                  className="flex items-center gap-2 text-xs text-slate-500"
-                >
-                  <Icon name="check" size={11} color="#22c55e" strokeWidth={3} />
-                  {item}
-                </li>
-              ))}
-            </ul>
+  return (
+    <div className="pt-4 md:pt-8">
+
+      {/* ── ABOVE THE FOLD: Hero + CTA ─────────────────────────── */}
+      <div className="md:grid md:grid-cols-2 md:gap-10 md:items-center max-w-5xl mx-auto">
+
+        {/* Left: copy */}
+        <div className="text-center md:text-left">
+          <div className="inline-flex items-center gap-1.5 bg-brand-900 text-white px-4 py-1.5 rounded-full mb-4 text-[10px] font-bold uppercase tracking-widest">
+            <Icon name="zap" size={11} color="#fbbf24" strokeWidth={2.5} />
+            Traducción Agéntica
           </div>
-        )}
+          <h1 className="text-[1.75rem] md:text-[2.8rem] font-extrabold text-brand-900 tracking-tight leading-[1.08]">
+            Tu traducción certificada
+            <br />
+            <span className="gradient-brand bg-clip-text text-transparent">
+              lista mañana
+            </span>
+          </h1>
+          <p className="text-sm md:text-base text-slate-500 mt-3 leading-relaxed max-w-md mx-auto md:mx-0">
+            Subí tu documento y recibilo con validez legal en tu domicilio.
+            Sin ir a ningún lado. Sin esperar semanas.
+          </p>
 
-      </div>
+          {/* Trust row */}
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-4">
+            {[
+              { icon: "shield", text: "Validez legal plena" },
+              { icon: "zap", text: "Timbres incluidos" },
+              { icon: "truck", text: "A domicilio gratis" },
+            ].map((b, i) => (
+              <div key={i} className="flex items-center gap-1.5 bg-accent-50 text-accent-600 px-2.5 py-1 rounded-full">
+                <Icon name={b.icon} size={12} strokeWidth={2.2} />
+                <span className="text-[11px] font-semibold">{b.text}</span>
+              </div>
+            ))}
+          </div>
 
-      {/* Right: Dropzone + controls */}
-      <div className="mt-6 md:mt-0 space-y-3">
-        {/* Doc type — subtle toggle, not a CTA */}
-        <div className="flex gap-1.5">
-          {DOC_TYPES.map((o) => (
-            <button
-              key={o.v}
-              onClick={() => setDocType(o.v)}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all ${
-                docType === o.v
-                  ? "bg-accent-50 text-accent-600 border border-accent-400 shadow-sm font-semibold"
-                  : "bg-slate-50 text-slate-400 border border-transparent hover:bg-slate-100 hover:text-slate-500"
-              }`}
-            >
-              {o.l}
-            </button>
-          ))}
+          {/* Price anchor */}
+          <p className="mt-4 text-xs text-slate-400">
+            Desde <span className="text-brand-900 font-extrabold text-sm">$3.5</span> UYU por palabra — todo incluido
+          </p>
         </div>
 
-        {/* Dropzone — compact */}
-        <div
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDrag(true);
-          }}
-          onDragLeave={() => setDrag(false)}
-          onDrop={onFile}
-          onClick={() => document.getElementById("fi").click()}
-          className={`relative rounded-xl p-4 md:p-5 text-center cursor-pointer transition-all duration-300 border-2 group ${
-            drag
-              ? "border-brand-400 bg-brand-50 scale-[1.01]"
-              : file
-                ? "border-brand-200 bg-gradient-to-b from-brand-50/50 to-white shadow-sm"
-                : "border-dashed border-slate-200 hover:border-brand-300 hover:bg-brand-50/30"
-          }`}
-        >
-          <input
-            id="fi"
-            type="file"
-            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.tiff"
-            className="hidden"
-            onChange={(e) =>
-              onFile({ preventDefault: () => {}, target: e.target })
-            }
-          />
-          {file ? (
-            <div className="flex items-center gap-3 text-left">
-              <div className="w-10 h-10 gradient-brand rounded-lg flex items-center justify-center flex-shrink-0 shadow-md shadow-brand-200">
-                <Icon name="file" size={18} color="white" strokeWidth={2} />
+        {/* Right: CTA card — dropzone */}
+        <div className="mt-6 md:mt-0">
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xl shadow-slate-200/40 overflow-hidden">
+            <div className="p-5">
+              <div
+                onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+                onDragLeave={() => setDrag(false)}
+                onDrop={onFile}
+                onClick={() => document.getElementById("fi").click()}
+                className={`relative rounded-xl p-5 md:p-6 text-center cursor-pointer transition-all duration-300 border-2 group ${
+                  drag
+                    ? "border-brand-400 bg-brand-50 scale-[1.01]"
+                    : file
+                      ? "border-accent-300 bg-accent-50/30"
+                      : "border-dashed border-slate-200 hover:border-brand-300 hover:bg-brand-50/20"
+                }`}
+              >
+                <input
+                  id="fi"
+                  type="file"
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.tiff"
+                  className="hidden"
+                  onChange={(e) => onFile({ preventDefault: () => {}, target: e.target })}
+                />
+
+                {file && !analyzing && words > 0 ? (
+                  <div className="text-left">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-5 h-5 rounded-full bg-accent-500 flex items-center justify-center">
+                        <Icon name="check" size={12} color="white" strokeWidth={3} />
+                      </div>
+                      <span className="text-xs font-bold text-accent-700 uppercase tracking-wider">Documento analizado</span>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <Icon name="file" size={15} color="#64748b" strokeWidth={1.8} />
+                        <span className="text-sm font-semibold text-brand-900 truncate">{file.name}</span>
+                        <span className="text-[10px] text-slate-300 ml-auto flex-shrink-0 hover:text-slate-500">Cambiar</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Icon name="globe" size={15} color="#2563eb" strokeWidth={1.8} />
+                        <span className="text-sm text-slate-600">{DIR_LABELS[dir]}</span>
+                        <button onClick={(e) => { e.stopPropagation(); setDir(dir === "en-es" ? "es-en" : "en-es"); }} className="text-[10px] text-brand-500 font-semibold hover:text-brand-700 ml-1">Cambiar</button>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Icon name="layers" size={15} color="#64748b" strokeWidth={1.8} />
+                        <span className="text-sm text-slate-600">
+                          {words.toLocaleString()} palabras{detectedPages && ` \u00b7 ${detectedPages} p\u00e1ginas`}
+                          {wordMethod === "ocr" && <span className="text-[10px] text-brand-400 ml-1">(OCR)</span>}
+                        </span>
+                      </div>
+                      {detectedNotes && (
+                        <div className="flex items-start gap-3">
+                          <Icon name="info" size={15} color="#94a3b8" strokeWidth={1.8} />
+                          <span className="text-[11px] text-slate-400 leading-relaxed">{detectedNotes}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : file && analyzing ? (
+                  <div className="py-1">
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center animate-pulse">
+                        <Icon name="scan" size={20} color="white" strokeWidth={2} />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-sm font-bold text-brand-900">Agente analizando...</p>
+                        <p className="text-xs text-slate-400">Contando palabras y detectando idioma</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : file && wordMethod === null ? (
+                  <div className="flex items-center gap-3 text-left">
+                    <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Icon name="file" size={20} color="#f59e0b" strokeWidth={2} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-brand-900 text-sm truncate">{file.name}</p>
+                      <p className="text-xs text-amber-500 mt-0.5">Ingres\u00e1 la cantidad de palabras</p>
+                    </div>
+                    <span className="text-[10px] text-slate-300">Cambiar</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="w-14 h-14 gradient-brand rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-brand-200 group-hover:scale-105 transition-transform">
+                      <Icon name="upload" size={26} color="white" strokeWidth={2} />
+                    </div>
+                    <p className="font-bold text-brand-900 text-base">Sub\u00ed tu documento</p>
+                    <p className="text-xs text-slate-400 mt-1">PDF, Word o imagen escaneada</p>
+                  </>
+                )}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-brand-900 text-sm truncate">
-                  {file.name}
-                </p>
-                <div className="flex items-center gap-2 text-xs mt-0.5">
-                  <span className="text-slate-400">
-                    {(file.size / 1024).toFixed(0)} KB
-                  </span>
-                  {analyzing ? (
-                    <Spinner />
-                  ) : words > 0 ? (
-                    <span className="text-brand-500 font-semibold">
-                      {words.toLocaleString()} palabras
-                      {wordMethod === "estimate" && " (est.)"}
-                    </span>
-                  ) : wordMethod === null ? (
-                    <span className="text-amber-500">
-                      Ingresá palabras
-                    </span>
-                  ) : null}
+
+              {file && !analyzing && wordMethod === null && (
+                <div className="flex items-center gap-2 mt-3">
+                  <label className="text-xs text-slate-500">Palabras:</label>
+                  <input type="number" min={1} value={words || ""} onChange={(e) => setWords(Number(e.target.value) || 0)} className="w-28 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" placeholder="Cantidad" />
                 </div>
-              </div>
-              <span className="text-[10px] text-slate-300">Cambiar</span>
-            </div>
-          ) : (
-            <>
-              <div className="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:bg-brand-100 transition-colors">
-                <Icon name="upload" size={20} color="#3b82f6" />
-              </div>
-              <p className="font-semibold text-brand-900 text-sm">
-                Subí tu documento
-              </p>
-              <p className="text-xs text-slate-400 mt-0.5">
-                PDF, Word o imagen escaneada
-              </p>
-            </>
-          )}
-        </div>
-
-        {/* Manual word input for images/unsupported */}
-        {file && !analyzing && wordMethod === null && (
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-slate-500">Palabras:</label>
-            <input
-              type="number"
-              min={1}
-              value={words || ""}
-              onChange={(e) => setWords(Number(e.target.value) || 0)}
-              className="w-28 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-              placeholder="Cantidad"
-            />
-          </div>
-        )}
-
-        {/* Pages to translate (optional) */}
-        {file && !analyzing && (
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-slate-500 whitespace-nowrap">Páginas:</label>
-            <input
-              type="text"
-              value={pages}
-              onChange={(e) => setPages(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-accent-400"
-              placeholder="Traducir todo el documento"
-            />
-            {pages && (
-              <span className="text-[10px] text-accent-600 whitespace-nowrap">
-                Solo páginas indicadas
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* Direction — subtle, not competing with CTA */}
-        <div className="flex gap-1.5">
-          {[
-            { v: "en-es", l: "Inglés → Español" },
-            { v: "es-en", l: "Español → Inglés" },
-          ].map((o) => (
-            <button
-              key={o.v}
-              onClick={() => setDir(o.v)}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
-                dir === o.v
-                  ? "bg-accent-50 text-accent-600 border border-accent-400 shadow-sm font-semibold"
-                  : "bg-slate-50 text-slate-400 border border-transparent hover:bg-slate-100 hover:text-slate-500"
-              }`}
-            >
-              <Icon
-                name="globe"
-                size={12}
-                color={dir === o.v ? "#059669" : "#94a3b8"}
-                strokeWidth={2}
-              />
-              {o.l}
-            </button>
-          ))}
-        </div>
-
-        {/* Live quote */}
-        {file && !analyzing && (words > 0 || docType === "partida_nacimiento") && (
-          <div className="surface-dark rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-brand-300">
-                Cotización instantánea
-              </span>
-              {docType !== "partida_nacimiento" && (
-                <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full font-medium">
-                  {words.toLocaleString()} pal × ${rate}
-                </span>
+              )}
+              {file && !analyzing && (
+                <div className="flex items-center gap-2 mt-3">
+                  <label className="text-xs text-slate-500 whitespace-nowrap">P\u00e1ginas:</label>
+                  <input type="text" value={pages} onChange={(e) => setPages(e.target.value)} className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" placeholder="Todas (o ej: 1-5, 10-15)" />
+                </div>
               )}
             </div>
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-xl font-extrabold">
-                  ${total.toLocaleString()} UYU
-                </p>
-                <p className="text-xs text-brand-300 mt-0.5">
-                  {docType === "partida_nacimiento"
-                    ? "Precio fijo partida"
-                    : "Incluye todo"}
-                </p>
+
+            {/* Quote bar */}
+            {file && !analyzing && words > 0 && !isPartida && (
+              <div className="bg-gradient-to-r from-brand-900 to-brand-700 px-5 py-4 text-white">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-semibold text-brand-300 uppercase tracking-widest mb-0.5">Cotizaci\u00f3n</p>
+                    <p className="text-2xl font-extrabold tracking-tight">${total.toLocaleString()} <span className="text-sm font-bold text-brand-300">UYU</span></p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[11px] text-brand-300">{words.toLocaleString()} pal. \u00d7 ${rate}</p>
+                    <p className="text-[11px] font-bold text-white">Todo incluido</p>
+                  </div>
+                </div>
               </div>
+            )}
+          </div>
+
+          {/* Partidas — compact row below card */}
+          <div className="mt-3 flex items-center gap-2">
+            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider whitespace-nowrap">Precio fijo</span>
+            <div className="flex gap-1.5 flex-1">
+              {PARTIDA_OPTIONS.map((o) => (
+                <button
+                  key={o.v}
+                  onClick={() => setDocType(docType === o.v ? "general" : o.v)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-semibold transition-all border ${
+                    docType === o.v
+                      ? "border-accent-400 bg-accent-50 text-accent-700"
+                      : "border-slate-100 bg-white text-slate-500 hover:border-slate-200"
+                  }`}
+                >
+                  <Icon name={o.icon} size={12} strokeWidth={1.8} />
+                  {o.l}
+                </button>
+              ))}
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
 
-    {/* Process steps */}
-    <div className="mt-8 md:mt-10">
-      <div className="grid grid-cols-5 gap-2 md:gap-6 max-w-3xl mx-auto">
-        {STEPS.map((s, i) => (
-          <div key={i} className="flex flex-col items-center text-center">
-            <div className="w-9 h-9 md:w-12 md:h-12 gradient-brand rounded-lg md:rounded-xl flex items-center justify-center shadow-md shadow-brand-200">
-              <Icon name={s.icon} size={16} color="white" strokeWidth={2} />
+      {/* Includes — single line */}
+      {includes && (
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+          {includes.slice(1).map((item, i) => (
+            <span key={i} className="flex items-center gap-1 text-[11px] text-slate-400">
+              <Icon name="check" size={10} color="#22c55e" strokeWidth={3} />
+              {item}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* ── TESTIMONIALS MARQUEE ─────────────────────────── */}
+      <div className="mt-14 md:mt-20">
+        <h2 className="text-center text-xs font-bold text-slate-300 uppercase tracking-widest mb-6">
+          Clientes que confían en Humara
+        </h2>
+        <TestimonialMarquee />
+      </div>
+
+      {/* ── COMPARATIVA ─────────────────────────── */}
+      <div className="mt-14 md:mt-20 max-w-xl mx-auto">
+        <h2 className="text-center text-xs font-bold text-slate-300 uppercase tracking-widest mb-6">
+          Humara vs. traductor tradicional
+        </h2>
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div className="grid grid-cols-3 text-center text-xs font-bold border-b border-slate-100">
+            <div className="py-3 text-slate-400" />
+            <div className="py-3 text-slate-400">Tradicional</div>
+            <div className="py-3 text-brand-600 bg-brand-50/50">Humara</div>
+          </div>
+          {[
+            ["Entrega", "5\u201310 d\u00edas", "24 horas"],
+            ["Precio / palabra", "$8\u201315", "$3.5"],
+            ["Ir a oficina", "S\u00ed", "100% online"],
+            ["Timbres", "Aparte", "Incluidos"],
+            ["Env\u00edo", "Retir\u00e1s vos", "A domicilio"],
+            ["Seguimiento", "Tel\u00e9fono", "Tiempo real"],
+          ].map(([label, trad, humara], i) => (
+            <div key={i} className={`grid grid-cols-3 text-center ${i % 2 === 0 ? "bg-slate-50/50" : "bg-white"}`}>
+              <div className="py-2.5 px-3 text-left text-[11px] text-slate-500 font-medium">{label}</div>
+              <div className="py-2.5 text-slate-400 text-[11px]">{trad}</div>
+              <div className="py-2.5 text-brand-900 font-bold text-[11px] bg-brand-50/30">{humara}</div>
             </div>
-            <p className="text-[9px] md:text-xs font-bold text-brand-900 mt-1.5 leading-tight">
-              {s.label}
-            </p>
-            <p className="text-[8px] md:text-[10px] text-slate-400 mt-0.5">
-              {s.sub}
-            </p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
 
-    {/* Testimonial — below steps */}
-    <div className="mt-6 max-w-lg mx-auto">
-      <div className="bg-slate-50 rounded-xl px-5 py-4 flex items-start gap-3">
-        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-xs">
-          A
+      {/* ── AGENTS ─────────────────────────── */}
+      <div className="mt-14 md:mt-20 max-w-2xl mx-auto">
+        <div className="text-center mb-8">
+          <h2 className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">
+            Sistema de Traducción Agéntica
+          </h2>
+          <p className="text-lg md:text-xl font-extrabold text-brand-900">
+            4 agentes especializados en cada documento
+          </p>
         </div>
-        <div>
-          <p className="text-xs text-slate-600 leading-relaxed italic">
-            "Me voló la cabeza. Subí un contrato de 25 páginas al mediodía
-            y al otro día llegué a la oficina y estaba arriba de mi escritorio."
-          </p>
-          <p className="mt-1.5 text-xs font-semibold text-brand-900">
-            Agustín Pangallo
-          </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {AGENTS.map((a, i) => (
+            <div key={i} className="relative">
+              <div className="bg-white rounded-2xl border border-slate-100 p-4 text-center shadow-sm hover:shadow-lg transition-all hover:-translate-y-0.5">
+                <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${a.color} flex items-center justify-center mx-auto mb-3 shadow-md ${a.shadow}`}>
+                  <Icon name={a.icon} size={18} color="white" strokeWidth={2} />
+                </div>
+                <p className="text-xs font-extrabold text-brand-900 mb-1">{a.name}</p>
+                <p className="text-[10px] text-slate-400 leading-relaxed">{a.desc}</p>
+              </div>
+              {i < 3 && (
+                <div className="hidden md:block absolute top-1/2 -right-2.5 transform -translate-y-1/2 text-slate-200 z-10">
+                  <Icon name="arrow" size={12} strokeWidth={2.5} />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── ESPECIALIDADES ─────────────────────────── */}
+      <div className="mt-14 md:mt-20 mb-8 max-w-2xl mx-auto">
+        <h2 className="text-center text-xs font-bold text-slate-300 uppercase tracking-widest mb-6">
+          Especializaciones
+        </h2>
+        <div className="grid grid-cols-5 gap-3">
+          {[
+            { icon: "shield", name: "Jurídico", desc: "Contratos, poderes" },
+            { icon: "layers", name: "Comercial", desc: "Balances, actas" },
+            { icon: "settings", name: "Técnico", desc: "Manuales, patentes" },
+            { icon: "user", name: "Civil", desc: "Certificados" },
+            { icon: "file", name: "Medicina", desc: "Historias clínicas" },
+          ].map((s, i) => (
+            <div key={i} className="bg-white border border-slate-100 rounded-xl p-3 text-center shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center mx-auto mb-1.5">
+                <Icon name={s.icon} size={15} color="#1e293b" strokeWidth={1.8} />
+              </div>
+              <p className="text-[11px] font-bold text-brand-900">{s.name}</p>
+              <p className="text-[9px] text-slate-400 mt-0.5">{s.desc}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
-    {/* Especialidades */}
-    <div className="mt-10 md:mt-12">
-      <h2 className="text-lg md:text-xl font-extrabold text-brand-900 text-center mb-1">
-        Especializaciones
-      </h2>
-      <p className="text-xs text-slate-400 text-center mb-5">
-        Glosarios profesionales y reglas específicas por área
-      </p>
-      <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
-        {[
-          { emoji: "⚖️", name: "Jurídico", desc: "Contratos, poderes, escrituras, sentencias" },
-          { emoji: "📊", name: "Comercial", desc: "Balances, actas, informes, estatutos" },
-          { emoji: "⚙️", name: "Técnico", desc: "Manuales, patentes, fichas técnicas" },
-          { emoji: "👤", name: "Civil", desc: "Partidas, certificados, apostillas" },
-          { emoji: "🏥", name: "Medicina", desc: "Historias clínicas, estudios, informes" },
-        ].map((s, i) => (
-          <div
-            key={i}
-            className="bg-white border border-slate-100 rounded-xl p-3 text-center shadow-sm hover:shadow-md transition-shadow"
-          >
-            <div className="text-2xl mb-1">{s.emoji}</div>
-            <p className="text-xs font-bold text-brand-900">{s.name}</p>
-            <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">{s.desc}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-);
+  );
+};

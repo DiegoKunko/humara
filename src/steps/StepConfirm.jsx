@@ -14,7 +14,7 @@ export const StepConfirm = ({
   onPay,
 }) => {
   const [paying, setPaying] = useState(false);
-  const isPartida = docType === "partida_nacimiento";
+  const isPartida = docType.startsWith("partida_");
 
   const handlePay = async () => {
     setPaying(true);

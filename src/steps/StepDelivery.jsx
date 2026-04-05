@@ -80,7 +80,7 @@ export const StepDelivery = ({
         </div>
         <div>
           <p className="text-sm font-semibold text-brand-900">
-            {docType === "partida_nacimiento"
+            {docType.startsWith("partida_")
               ? "Partida de nacimiento"
               : `${words.toLocaleString()} palabras`}{" "}
             · {deliveryHours === 0 ? "En el día" : `${deliveryHours}h`}
