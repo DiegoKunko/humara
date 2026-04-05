@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react";
 import { Icon } from "../components/Icon";
 
 const DIR_LABELS = {
-  "en-es": "Inglés \u2192 Espa\u00f1ol",
-  "es-en": "Espa\u00f1ol \u2192 Ingl\u00e9s",
+  "en-es": "Inglés → Español",
+  "es-en": "Español → Inglés",
 };
 
 const AGENTS = [
@@ -223,7 +223,7 @@ export const StepUpload = ({
                       <div className="flex items-center gap-3">
                         <Icon name="layers" size={15} color="#64748b" strokeWidth={1.8} />
                         <span className="text-sm text-slate-600">
-                          {words.toLocaleString()} palabras{detectedPages && ` \u00b7 ${detectedPages} p\u00e1ginas`}
+                          {words.toLocaleString()} palabras{detectedPages && ` · ${detectedPages} páginas`}
                           {wordMethod === "ocr" && <span className="text-[10px] text-brand-400 ml-1">(OCR)</span>}
                         </span>
                       </div>
@@ -254,7 +254,7 @@ export const StepUpload = ({
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-brand-900 text-sm truncate">{file.name}</p>
-                      <p className="text-xs text-amber-500 mt-0.5">Ingres\u00e1 la cantidad de palabras</p>
+                      <p className="text-xs text-amber-500 mt-0.5">Ingresá la cantidad de palabras</p>
                     </div>
                     <span className="text-[10px] text-slate-300">Cambiar</span>
                   </div>
@@ -263,7 +263,7 @@ export const StepUpload = ({
                     <div className="w-14 h-14 gradient-brand rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-brand-200 group-hover:scale-105 transition-transform">
                       <Icon name="upload" size={26} color="white" strokeWidth={2} />
                     </div>
-                    <p className="font-bold text-brand-900 text-base">Sub\u00ed tu documento</p>
+                    <p className="font-bold text-brand-900 text-base">Subí tu documento</p>
                     <p className="text-xs text-slate-400 mt-1">PDF, Word o imagen escaneada</p>
                   </>
                 )}
@@ -277,7 +277,7 @@ export const StepUpload = ({
               )}
               {file && !analyzing && (
                 <div className="flex items-center gap-2 mt-3">
-                  <label className="text-xs text-slate-500 whitespace-nowrap">P\u00e1ginas:</label>
+                  <label className="text-xs text-slate-500 whitespace-nowrap">Páginas:</label>
                   <input type="text" value={pages} onChange={(e) => setPages(e.target.value)} className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400" placeholder="Todas (o ej: 1-5, 10-15)" />
                 </div>
               )}
@@ -288,11 +288,11 @@ export const StepUpload = ({
               <div className="bg-gradient-to-r from-brand-900 to-brand-700 px-5 py-4 text-white">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] font-semibold text-brand-300 uppercase tracking-widest mb-0.5">Cotizaci\u00f3n</p>
+                    <p className="text-[10px] font-semibold text-brand-300 uppercase tracking-widest mb-0.5">Cotización</p>
                     <p className="text-2xl font-extrabold tracking-tight">${total.toLocaleString()} <span className="text-sm font-bold text-brand-300">UYU</span></p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[11px] text-brand-300">{words.toLocaleString()} pal. \u00d7 ${rate}</p>
+                    <p className="text-[11px] text-brand-300">{words.toLocaleString()} pal. × ${rate}</p>
                     <p className="text-[11px] font-bold text-white">Todo incluido</p>
                   </div>
                 </div>
@@ -355,12 +355,12 @@ export const StepUpload = ({
             <div className="py-3 text-brand-600 bg-brand-50/50">Humara</div>
           </div>
           {[
-            ["Entrega", "5\u201310 d\u00edas", "24 horas"],
+            ["Entrega", "5–10 días", "24 horas"],
             ["Precio / palabra", "$8\u201315", "$3.5"],
-            ["Ir a oficina", "S\u00ed", "100% online"],
+            ["Ir a oficina", "Sí", "100% online"],
             ["Timbres", "Aparte", "Incluidos"],
-            ["Env\u00edo", "Retir\u00e1s vos", "A domicilio"],
-            ["Seguimiento", "Tel\u00e9fono", "Tiempo real"],
+            ["Envío", "Retirás vos", "A domicilio"],
+            ["Seguimiento", "Teléfono", "Tiempo real"],
           ].map(([label, trad, humara], i) => (
             <div key={i} className={`grid grid-cols-3 text-center ${i % 2 === 0 ? "bg-slate-50/50" : "bg-white"}`}>
               <div className="py-2.5 px-3 text-left text-[11px] text-slate-500 font-medium">{label}</div>
