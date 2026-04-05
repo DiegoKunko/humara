@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+jobs/
+.env
+*.pyc
+.memory/

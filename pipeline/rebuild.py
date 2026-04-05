@@ -35,8 +35,13 @@ MIN_FONT_SIZE = 1.0
 GLYPH_NOISE_RE = re.compile(r'^[\s\u00ff]+$')
 MAX_BLOCK_AREA_RATIO = 0.25
 
-# Font — Arial Unicode MS supports full Unicode
-FONT_PATH = "/Library/Fonts/Arial Unicode.ttf"
+# Font — try multiple paths for cross-platform support
+_FONT_CANDIDATES = [
+    "/Library/Fonts/Arial Unicode.ttf",          # macOS
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",  # Linux/Docker
+    "/usr/share/fonts/dejavu/DejaVuSans.ttf",    # Alpine
+]
+FONT_PATH = next((p for p in _FONT_CANDIDATES if os.path.exists(p)), _FONT_CANDIDATES[0])
 FONT_NAME = "aruni"
 
 # Merging thresholds
