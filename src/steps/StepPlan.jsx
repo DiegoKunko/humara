@@ -1,7 +1,14 @@
 import { Icon } from "../components/Icon";
 
+const PARTIDA_OPTIONS = [
+  { v: "partida_nacimiento", l: "Partida de nacimiento", icon: "user" },
+  { v: "partida_matrimonio", l: "Partida de matrimonio", icon: "file" },
+  { v: "partida_defuncion", l: "Partida de defunción", icon: "pen" },
+];
+
 export const StepPlan = ({
   docType,
+  setDocType,
   tier,
   setTier,
   express,
@@ -146,6 +153,34 @@ export const StepPlan = ({
             </div>
           </button>
         </div>
+      )}
+
+      {/* Partidas — precio fijo */}
+      {!isPartida && (
+        <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Partidas y certificados — precio fijo</p>
+          <div className="flex gap-2">
+            {PARTIDA_OPTIONS.map((o) => (
+              <button
+                key={o.v}
+                onClick={() => setDocType(o.v)}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-semibold border border-slate-200 bg-white text-slate-500 hover:border-brand-300 hover:text-brand-600 transition-all"
+              >
+                <Icon name={o.icon} size={13} strokeWidth={1.8} />
+                {o.l.replace("Partida de ", "")}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {isPartida && (
+        <button
+          onClick={() => setDocType("general")}
+          className="text-xs text-slate-400 hover:text-brand-600 font-medium transition-colors"
+        >
+          ← Volver a documento general
+        </button>
       )}
 
       {/* Quote card */}

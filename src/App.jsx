@@ -271,6 +271,7 @@ function Wizard() {
           {step === 1 && (
             <StepPlan
               docType={docType}
+              setDocType={setDocType}
               tier={tier}
               setTier={setTier}
               express={express}

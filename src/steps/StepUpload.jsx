@@ -300,26 +300,8 @@ export const StepUpload = ({
             )}
           </div>
 
-          {/* Partidas — compact row below card */}
-          <div className="mt-3 flex items-center gap-2">
-            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider whitespace-nowrap">Precio fijo</span>
-            <div className="flex gap-1.5 flex-1">
-              {PARTIDA_OPTIONS.map((o) => (
-                <button
-                  key={o.v}
-                  onClick={() => setDocType(docType === o.v ? "general" : o.v)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-semibold transition-all border ${
-                    docType === o.v
-                      ? "border-accent-400 bg-accent-50 text-accent-700"
-                      : "border-slate-100 bg-white text-slate-500 hover:border-slate-200"
-                  }`}
-                >
-                  <Icon name={o.icon} size={12} strokeWidth={1.8} />
-                  {o.l}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* spacer */}
+          <div className="mt-3" />
         </div>
       </div>
 
