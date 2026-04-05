@@ -301,7 +301,7 @@ export const StepUpload = ({
           </div>
 
           {/* spacer */}
-          <div className="mt-3" />
+          <div className="mt-1" />
         </div>
       </div>
 
@@ -383,8 +383,35 @@ export const StepUpload = ({
         </div>
       </div>
 
+      {/* ── PARTIDAS — info, precio fijo ─────────────────────────── */}
+      <div className="mt-14 md:mt-20 max-w-xl mx-auto">
+        <div className="bg-gradient-to-br from-brand-50 to-white rounded-2xl border border-brand-100 p-6">
+          <h3 className="text-base font-extrabold text-brand-900 text-center mb-1">
+            Partidas y certificados civiles
+          </h3>
+          <p className="text-xs text-slate-400 text-center mb-4">
+            Precio fijo, todo incluido. Subí tu partida arriba y te cotizamos al instante.
+          </p>
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { icon: "user", name: "Nacimiento", price: "Desde $2.000" },
+              { icon: "file", name: "Matrimonio", price: "Desde $2.000" },
+              { icon: "pen", name: "Defunción", price: "Desde $2.000" },
+            ].map((o, i) => (
+              <div key={i} className="bg-white rounded-xl border border-slate-100 p-3 text-center shadow-sm">
+                <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center mx-auto mb-1.5">
+                  <Icon name={o.icon} size={14} color="#2563eb" strokeWidth={1.8} />
+                </div>
+                <p className="text-xs font-bold text-brand-900">{o.name}</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">{o.price}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* ── ESPECIALIDADES ─────────────────────────── */}
-      <div className="mt-14 md:mt-20 mb-8 max-w-2xl mx-auto">
+      <div className="mt-10 mb-8 max-w-2xl mx-auto">
         <h2 className="text-center text-xs font-bold text-slate-300 uppercase tracking-widest mb-6">
           Especializaciones
         </h2>
