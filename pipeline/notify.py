@@ -91,7 +91,7 @@ def build_email_html(data):
 
   <div style="background:linear-gradient(135deg,#1e293b 0%,#334155 100%);padding:32px 40px;text-align:center;">
     <h1 style="color:#ffffff;font-size:28px;margin:0;letter-spacing:1px;">HUMARA</h1>
-    <p style="color:#94a3b8;font-size:13px;margin:8px 0 0;">Traducciones agénticas</p>
+    <p style="color:#94a3b8;font-size:13px;margin:8px 0 0;">Traducción certificada con validez legal</p>
   </div>
 
   <div style="padding:32px 40px;">
@@ -164,7 +164,7 @@ def build_email_html(data):
 
   <div style="background:#f8fafc;padding:24px 40px;text-align:center;border-top:1px solid #e2e8f0;">
     <p style="font-size:12px;color:#94a3b8;margin:0;">
-      Humara · Traducciones agénticas · humara.app
+      Humara · Traducción certificada · humara.app
     </p>
   </div>
 </div>
