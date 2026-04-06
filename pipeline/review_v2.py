@@ -19,8 +19,13 @@ def build_review_prompt(doc_type):
     return base_prompt.replace("{glossary_placeholder}", glossary_text)
 
 
-def review_chunk(client, system_prompt, chunk, model="claude-opus-4-20250514"):
+def review_chunk(client, system_prompt, chunk, model="claude-sonnet-4-20250514",
+                 cost_tracker=None, attempt=1):
     """Review a chunk of translated pages via Claude API.
+
+    Args:
+        cost_tracker: optional CostTracker instance to record token usage
+        attempt: iteration number (for the auto-correct loop)
 
     Returns:
         tuple: (reviewed_pages, issues_list, segments_modified)
@@ -40,6 +45,8 @@ def review_chunk(client, system_prompt, chunk, model="claude-opus-4-20250514"):
 
     # Use streaming to avoid timeout on long requests (required for Opus)
     response_text = ""
+    final_message = None
+    stream_start = time.monotonic()
     with client.messages.stream(
         model=model,
         max_tokens=16384,
@@ -48,6 +55,21 @@ def review_chunk(client, system_prompt, chunk, model="claude-opus-4-20250514"):
     ) as stream:
         for text in stream.text_stream:
             response_text += text
+        final_message = stream.get_final_message()
+    stream_duration_ms = int((time.monotonic() - stream_start) * 1000)
+
+    # Record cost if tracker was provided
+    if cost_tracker is not None and final_message is not None:
+        try:
+            cost_tracker.record(
+                step="review",
+                attempt=attempt,
+                model=model,
+                response=final_message,
+                duration_ms=stream_duration_ms,
+            )
+        except Exception as e:
+            print(f"  [cost_tracker] Failed to record review call: {e}")
     # Strip markdown code fences if present
     if response_text.startswith("```"):
         response_text = response_text.split("\n", 1)[1]
@@ -92,7 +114,7 @@ def review_chunk(client, system_prompt, chunk, model="claude-opus-4-20250514"):
 
 
 def review_document(translated_data, output_dir, doc_type="general",
-                    model="claude-opus-4-20250514"):
+                    model="claude-sonnet-4-20250514", cost_tracker=None, attempt=1):
     """Review all pages in the translated data.
 
     Args:
@@ -100,6 +122,9 @@ def review_document(translated_data, output_dir, doc_type="general",
         output_dir: Job directory to save reviewed.json and review_report.json
         doc_type: Document type for glossary selection
         model: Claude model to use (Opus recommended for review)
+        cost_tracker: optional CostTracker to record token usage
+        attempt: iteration number (for the auto-correct loop). When attempt>1,
+            the output files are versioned (reviewed_attempt_2.json, etc.)
 
     Returns:
         Dict with reviewed pages
@@ -131,7 +156,8 @@ def review_document(translated_data, output_dir, doc_type="general",
 
         try:
             reviewed, issues, changes, score, ready, summary = review_chunk(
-                client, system_prompt, chunk, model=model
+                client, system_prompt, chunk, model=model,
+                cost_tracker=cost_tracker, attempt=attempt,
             )
             reviewed_pages.extend(reviewed)
             all_issues.extend(issues)
@@ -147,7 +173,8 @@ def review_document(translated_data, output_dir, doc_type="general",
             time.sleep(5)
             try:
                 reviewed, issues, changes, score, ready, summary = review_chunk(
-                    client, system_prompt, chunk, model=model
+                    client, system_prompt, chunk, model=model,
+                    cost_tracker=cost_tracker, attempt=attempt,
                 )
                 reviewed_pages.extend(reviewed)
                 all_issues.extend(issues)
@@ -188,14 +215,22 @@ def review_document(translated_data, output_dir, doc_type="general",
         "pages": reviewed_pages,
     }
 
-    reviewed_path = os.path.join(output_dir, "reviewed.json")
-    with open(reviewed_path, "w", encoding="utf-8") as f:
+    # Always write a versioned snapshot per attempt (to avoid losing data across iterations)
+    # plus the canonical reviewed.json that downstream steps read without knowing about attempts.
+    versioned_path = os.path.join(output_dir, f"reviewed_attempt_{attempt}.json")
+    with open(versioned_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
+
+    canonical_path = os.path.join(output_dir, "reviewed.json")
+    with open(canonical_path, "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2)
+    reviewed_path = canonical_path
 
     # Save review report
     report = {
         "score": round(avg_score, 3),
         "ready_for_certification": overall_ready,
+        "attempt": attempt,
         "total_segments": total_segments,
         "segments_modified": total_changes,
         "issues_summary": {
@@ -207,9 +242,14 @@ def review_document(translated_data, output_dir, doc_type="general",
         "issues": all_issues,
     }
 
-    report_path = os.path.join(output_dir, "review_report.json")
-    with open(report_path, "w", encoding="utf-8") as f:
+    versioned_report = os.path.join(output_dir, f"review_report_attempt_{attempt}.json")
+    with open(versioned_report, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
+
+    canonical_report = os.path.join(output_dir, "review_report.json")
+    with open(canonical_report, "w", encoding="utf-8") as f:
+        json.dump(report, f, ensure_ascii=False, indent=2)
+    report_path = canonical_report
 
     # Print summary
     print(f"\n  ═══ REVIEW SUMMARY ═══")
@@ -232,7 +272,7 @@ if __name__ == "__main__":
     parser.add_argument("--doc-type", default="general",
                         choices=["legal", "civil", "technical", "auto", "commercial", "general"],
                         help="Document type for glossary selection")
-    parser.add_argument("--model", default="claude-opus-4-20250514",
+    parser.add_argument("--model", default="claude-sonnet-4-20250514",
                         help="Claude model for review (Opus recommended)")
     args = parser.parse_args()
 

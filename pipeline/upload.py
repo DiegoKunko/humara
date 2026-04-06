@@ -17,7 +17,7 @@ import requests
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://uvhlverpjakhpwihhgef.supabase.co")
 SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
 BUCKET = "translations"
-SIGNED_URL_EXPIRY = 604800  # 7 days
+SIGNED_URL_EXPIRY = 315360000  # 10 years (en la práctica, no vence)
 
 
 def get_headers(content_type="application/json"):

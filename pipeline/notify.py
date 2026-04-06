@@ -15,6 +15,61 @@ import requests
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 
 
+def build_warning_banner(warning):
+    """Build the red warning banner HTML when a job didn't reach target score.
+
+    Args:
+        warning: dict with keys score, attempts_used, max_attempts, cost_used_usd,
+                 cost_budget_usd, stopped_by, top_unresolved, issues_by_page
+
+    Returns:
+        HTML string (empty if warning is None)
+    """
+    if not warning:
+        return ""
+
+    score_pct = round(warning.get("score", 0.0) * 100)
+    top_items = warning.get("top_unresolved", [])
+
+    items_html = ""
+    if top_items:
+        rows = []
+        for item in top_items:
+            page = item.get("page", "?")
+            sev = item.get("severity", "")
+            expl = (item.get("explanation") or "").strip()
+            if not expl:
+                continue
+            sev_tag = "CRÍTICO" if sev == "critico" else "MAYOR"
+            rows.append(
+                f'<li style="margin-bottom:6px;"><strong>Pág. {page} [{sev_tag}]:</strong> {expl}</li>'
+            )
+        items_html = f'<ul style="font-size:12px;color:#7f1d1d;margin:10px 0 0;padding-left:20px;line-height:1.5;">{"".join(rows)}</ul>'
+
+    stopped_labels = {
+        "max_attempts": "se agotaron los intentos automáticos",
+        "cost_budget": "se agotó el presupuesto de procesamiento",
+        "no_improvement": "el sistema dejó de mejorar entre intentos",
+    }
+    stopped_reason = stopped_labels.get(warning.get("stopped_by", ""), "el sistema no pudo resolver todo")
+
+    return f"""
+    <div style="background:#fef2f2;border:2px solid #dc2626;border-radius:10px;padding:18px 22px;margin:0 0 24px;">
+      <p style="font-size:14px;color:#991b1b;margin:0 0 8px;font-weight:700;">
+        ⚠ Este documento requiere tu atención especial
+      </p>
+      <p style="font-size:13px;color:#7f1d1d;line-height:1.6;margin:0 0 8px;">
+        Nuestro sistema intentó corregirlo automáticamente pero {stopped_reason}.
+        Score final: <strong>{score_pct}%</strong> (meta: 90%) · Intentos: {warning.get("attempts_used", 1)}.
+      </p>
+      <p style="font-size:12px;color:#991b1b;margin:10px 0 0;font-weight:600;">
+        Puntos a revisar con más atención:
+      </p>
+      {items_html}
+    </div>
+    """
+
+
 def build_email_html(data):
     """Build the HTML email template."""
     score_percent = round(data["review_score"] * 100)
@@ -26,6 +81,7 @@ def build_email_html(data):
         score_color = "#ef4444"
 
     iss = data["issues_summary"]
+    warning_banner = build_warning_banner(data.get("warning"))
 
     return f"""<!DOCTYPE html>
 <html>
@@ -45,6 +101,8 @@ def build_email_html(data):
     <p style="font-size:15px;color:#475569;line-height:1.6;margin:0 0 24px;">
       Tenés una nueva traducción lista para revisión y certificación.
     </p>
+
+    {warning_banner}
 
     <div style="background:#f1f5f9;border-radius:12px;padding:24px;margin:0 0 24px;">
       <h2 style="font-size:18px;color:#1e293b;margin:0 0 16px;">{data["job_title"]}</h2>
@@ -100,7 +158,7 @@ def build_email_html(data):
     </div>
 
     <p style="font-size:13px;color:#94a3b8;text-align:center;margin:24px 0 0;">
-      Los links de descarga vencen en 7 días.
+      Los links de descarga están disponibles por tiempo indefinido.
     </p>
   </div>
 
@@ -114,7 +172,8 @@ def build_email_html(data):
 </html>"""
 
 
-def notify_translator(job_id, job_dir, translator_emails, translator_name="Traductor/a"):
+def notify_translator(job_id, job_dir, translator_emails, translator_name="Traductor/a",
+                      warning_payload=None):
     """Send notification email to the translator (and CC recipients).
 
     Args:
@@ -122,6 +181,9 @@ def notify_translator(job_id, job_dir, translator_emails, translator_name="Tradu
         job_dir: Local job directory
         translator_emails: Comma-separated email addresses (first = main, rest = CC)
         translator_name: Name of the main translator
+        warning_payload: optional dict from autocorrect.LoopResult.warning_payload —
+            if present, a red banner is rendered at the top of the email alerting
+            Andrea that the document did not reach the target quality automatically.
 
     Returns:
         dict with email_id if successful, None otherwise
@@ -171,6 +233,7 @@ def notify_translator(job_id, job_dir, translator_emails, translator_name="Tradu
         "review_score": review_score,
         "issues_summary": issues_summary,
         "download_urls": download_urls,
+        "warning": warning_payload,
     }
 
     html = build_email_html(data)

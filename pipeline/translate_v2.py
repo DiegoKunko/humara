@@ -101,7 +101,8 @@ def chunk_pages(pages, max_blocks=50):
     return chunks
 
 
-def translate_chunk(client, system_prompt, chunk, model="claude-sonnet-4-20250514"):
+def translate_chunk(client, system_prompt, chunk, model="claude-sonnet-4-20250514",
+                    cost_tracker=None, attempt=1):
     """Translate a chunk of pages via Claude API."""
     text_payload = []
     for page in chunk:
@@ -116,12 +117,26 @@ def translate_chunk(client, system_prompt, chunk, model="claude-sonnet-4-2025051
 
     user_message = json.dumps(text_payload, ensure_ascii=False)
 
+    call_start = time.monotonic()
     response = client.messages.create(
         model=model,
         max_tokens=8192,
         system=system_prompt,
         messages=[{"role": "user", "content": user_message}],
     )
+    call_duration_ms = int((time.monotonic() - call_start) * 1000)
+
+    if cost_tracker is not None:
+        try:
+            cost_tracker.record(
+                step="translate",
+                attempt=attempt,
+                model=model,
+                response=response,
+                duration_ms=call_duration_ms,
+            )
+        except Exception as e:
+            print(f"  [cost_tracker] Failed to record translate call: {e}")
 
     response_text = response.content[0].text
     # Strip markdown code fences if present
@@ -155,7 +170,7 @@ def translate_chunk(client, system_prompt, chunk, model="claude-sonnet-4-2025051
 
 
 def translate_document(extracted_data, output_dir, doc_type="general",
-                       model="claude-sonnet-4-20250514"):
+                       model="claude-sonnet-4-20250514", cost_tracker=None):
     """Translate all pages in the extracted data.
 
     Args:
@@ -163,6 +178,7 @@ def translate_document(extracted_data, output_dir, doc_type="general",
         output_dir: Job directory to save translated.json
         doc_type: Document type for glossary selection
         model: Claude model to use
+        cost_tracker: optional CostTracker to record token usage
 
     Returns:
         Dict with translated pages
@@ -185,14 +201,20 @@ def translate_document(extracted_data, output_dir, doc_type="general",
         print(f"  Chunk {i + 1}/{len(chunks)} (pages {page_range})...")
 
         try:
-            translated = translate_chunk(client, system_prompt, chunk, model=model)
+            translated = translate_chunk(
+                client, system_prompt, chunk, model=model,
+                cost_tracker=cost_tracker,
+            )
             translated_pages.extend(translated)
         except Exception as e:
             print(f"  Error on chunk {i + 1}: {e}")
             print(f"  Retrying in 5s...")
             time.sleep(5)
             try:
-                translated = translate_chunk(client, system_prompt, chunk, model=model)
+                translated = translate_chunk(
+                    client, system_prompt, chunk, model=model,
+                    cost_tracker=cost_tracker,
+                )
                 translated_pages.extend(translated)
             except Exception as e2:
                 print(f"  Failed again: {e2}. Keeping original text for this chunk.")

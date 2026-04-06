@@ -43,9 +43,26 @@ from review_v2 import review_document
 from rebuild import rebuild_document
 from upload import upload_job
 from notify import notify_translator
+from cost_tracker import CostTracker
+from autocorrect import auto_correct_loop
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://uvhlverpjakhpwihhgef.supabase.co")
 SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+
+# Config del loop de auto-corrección (override via env vars).
+#
+# Reviewer = Sonnet por default (calibrado abril 2026): Sonnet detecta los
+# mismos errores reales que Opus pero sub-clasifica severidades (mayor→menor)
+# y cuesta 5x menos y corre 2x más rápido. Budget estimado por job completo:
+# ~$2-3 USD con Sonnet (vs $7-8 con Opus). Target subido a 0.92 para compensar
+# el sesgo de Sonnet hacia scores más altos.
+#
+# Si algún job crítico necesita máxima severidad, setear HUMARA_REVIEW_MODEL=
+# claude-opus-4-20250514 via env var.
+AUTOCORRECT_TARGET_SCORE = float(os.environ.get("HUMARA_TARGET_SCORE", "0.92"))
+AUTOCORRECT_MAX_ATTEMPTS = int(os.environ.get("HUMARA_MAX_ATTEMPTS", "3"))
+AUTOCORRECT_COST_BUDGET = float(os.environ.get("HUMARA_COST_BUDGET_USD", "6.00"))
+REVIEW_MODEL = os.environ.get("HUMARA_REVIEW_MODEL", "claude-sonnet-4-20250514")
 
 
 def get_job_dir(job_id):
@@ -127,6 +144,13 @@ def run(job_id, doc_type="general", notify_email=None, notify_name="Traductor/a"
     start = time.time()
     update_order_status(order_id, "processing")
 
+    # Cost tracker para todo el job
+    cost_tracker = CostTracker(job_id, job_dir)
+
+    # Estado del loop de auto-corrección (se llena después del review)
+    loop_result = None
+    warning_payload = None
+
     try:
         # Step 1: Extract (with automatic OCR fallback for scanned PDFs)
         extracted_path = os.path.join(job_dir, "extracted.json")
@@ -158,7 +182,9 @@ def run(job_id, doc_type="general", notify_email=None, notify_name="Traductor/a"
             print("[Step 2/4] Translate v2 — translating with Claude Sonnet...")
             update_status(job_dir, "translating", step=2)
             update_order_status(order_id, "translating")
-            translated = translate_document(extracted, job_dir, doc_type=doc_type)
+            translated = translate_document(
+                extracted, job_dir, doc_type=doc_type, cost_tracker=cost_tracker
+            )
         print()
 
         # Step 3: Review (v2 — Opus + 7-dimension review)
@@ -166,11 +192,36 @@ def run(job_id, doc_type="general", notify_email=None, notify_name="Traductor/a"
         if os.path.exists(reviewed_path):
             print("[Step 3/4] Review v2 — using cached result")
             reviewed_data = load_json(reviewed_path)
+            print(f"  Skipping auto-correct loop (cached review)")
         else:
             print("[Step 3/4] Review v2 — reviewing with Claude Opus...")
             update_status(job_dir, "reviewing", step=3)
             update_order_status(order_id, "reviewing")
-            reviewed_data = review_document(translated, job_dir, doc_type=doc_type)
+            reviewed_data = review_document(
+                translated, job_dir, doc_type=doc_type,
+                model=REVIEW_MODEL,
+                cost_tracker=cost_tracker, attempt=1,
+            )
+
+            # Auto-correct loop: itera review hasta alcanzar target_score o agotar budget
+            loop_result = auto_correct_loop(
+                reviewed_data=reviewed_data,
+                output_dir=job_dir,
+                doc_type=doc_type,
+                model=REVIEW_MODEL,
+                cost_tracker=cost_tracker,
+                target_score=AUTOCORRECT_TARGET_SCORE,
+                max_attempts=AUTOCORRECT_MAX_ATTEMPTS,
+                cost_budget_usd=AUTOCORRECT_COST_BUDGET,
+            )
+            reviewed_data = loop_result.final_reviewed
+            warning_payload = loop_result.warning_payload
+            update_status(job_dir, "reviewing", step=3, progress={
+                "score": loop_result.final_report.get("score"),
+                "attempts": loop_result.attempts_used,
+                "reached_target": loop_result.reached_target,
+                "stopped_by": loop_result.stopped_by,
+            })
         print()
 
         # Step 4: Rebuild
@@ -190,21 +241,43 @@ def run(job_id, doc_type="general", notify_email=None, notify_name="Traductor/a"
         if notify_email:
             print("[Step 6/6] Notify — sending email to translator...")
             update_status(job_dir, "notifying", step=6)
-            notify_translator(job_id, job_dir, notify_email, notify_name)
+            notify_translator(
+                job_id, job_dir, notify_email, notify_name,
+                warning_payload=warning_payload,
+            )
             print()
 
-        # Done — update order with output paths
+        # Done — update order with output paths + cost/quality metrics
         elapsed = time.time() - start
         total_steps = 6 if notify_email else 5
         update_status(job_dir, "done", step=total_steps, progress=f"completed in {elapsed:.0f}s")
 
-        # Set order to ready with download path (DOCX in translations bucket)
+        # Sincronizar costos a Supabase (tabla job_llm_calls)
+        cost_tracker.sync_to_supabase()
+
+        # Cargar el review_report final para los metadata del order
+        final_report_path = os.path.join(job_dir, "review_report.json")
+        final_report = load_json(final_report_path) if os.path.exists(final_report_path) else {}
+
+        inp_tokens, out_tokens = cost_tracker.total_tokens()
         output_fields = {
             "output_path": f"{job_id}/traduccion.docx",
+            "job_id": job_id,
+            "ai_cost_usd": round(cost_tracker.total_usd(), 4),
+            "ai_tokens_input": inp_tokens,
+            "ai_tokens_output": out_tokens,
+            "review_score": final_report.get("score"),
+            "review_attempts": loop_result.attempts_used if loop_result else 1,
+            "review_reached_target": loop_result.reached_target if loop_result else None,
+            "unresolved_issues": warning_payload,
         }
         update_order_status(order_id, "ready", extra_fields=output_fields)
 
         print(f"=== Done in {elapsed:.0f}s ===")
+        print(f"AI cost: ${cost_tracker.total_usd():.4f}")
+        if loop_result:
+            print(f"Final score: {loop_result.final_report.get('score', 0):.3f} "
+                  f"({'✓ target reached' if loop_result.reached_target else '✗ below target'})")
         if pdf_path:
             print(f"Output PDF: {pdf_path}")
         if urls:
