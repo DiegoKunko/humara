@@ -32,11 +32,10 @@ function getConfigNumber(configs, key, fallback) {
 
 function computeCostMetrics(orders, configs) {
   const usdToUyu = getConfigNumber(configs, "usd_to_uyu_rate", 40);
-  const andreaRate = getConfigNumber(configs, "andrea_rate_uyu_per_hour", 600);
-  const andreaMin1k = getConfigNumber(
+  const translatorCostPerWord = getConfigNumber(
     configs,
-    "andrea_minutes_per_1000_words",
-    15
+    "translator_cost_per_word",
+    1.5
   );
 
   const rows = orders
@@ -46,8 +45,7 @@ function computeCostMetrics(orders, configs) {
       const aiCostUsd = Number(o.ai_cost_usd) || 0;
       const aiCostUyu = aiCostUsd * usdToUyu;
       const words = Number(o.word_count) || 0;
-      const humanMinutes = (words / 1000) * andreaMin1k;
-      const humanCostUyu = (humanMinutes / 60) * andreaRate;
+      const humanCostUyu = words * translatorCostPerWord;
       const margenUyu = revenue - aiCostUyu - humanCostUyu;
       const margenPct = revenue > 0 ? (margenUyu / revenue) * 100 : null;
       return {
@@ -55,7 +53,6 @@ function computeCostMetrics(orders, configs) {
         _revenue: revenue,
         _aiCostUsd: aiCostUsd,
         _aiCostUyu: aiCostUyu,
-        _humanMinutes: humanMinutes,
         _humanCostUyu: humanCostUyu,
         _margenUyu: margenUyu,
         _margenPct: margenPct,
@@ -87,8 +84,7 @@ function computeCostMetrics(orders, configs) {
   return {
     rows,
     usdToUyu,
-    andreaRate,
-    andreaMin1k,
+    translatorCostPerWord,
     totalRevenue,
     totalAiUsd,
     totalAiUyu,
@@ -421,12 +417,9 @@ export function Admin() {
               <p className="text-[11px] font-bold text-amber-800 uppercase tracking-wide mb-2">
                 Supuestos del cálculo
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs text-amber-900">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-amber-900">
                 <div>
-                  Tarifa Andrea: <strong>${metrics.andreaRate}/hora UYU</strong>
-                </div>
-                <div>
-                  Tiempo estimado: <strong>{metrics.andreaMin1k} min / 1000 palabras</strong>
+                  Costo traductora: <strong>${metrics.translatorCostPerWord} UYU/palabra</strong>
                 </div>
                 <div>
                   TC USD→UYU: <strong>{metrics.usdToUyu}</strong>
@@ -434,8 +427,7 @@ export function Admin() {
               </div>
               <p className="text-[11px] text-amber-700 mt-2">
                 Ajustá estos valores desde la tab <strong>Configuración</strong>{" "}
-                (keys: <code>andrea_rate_uyu_per_hour</code>,{" "}
-                <code>andrea_minutes_per_1000_words</code>,{" "}
+                (keys: <code>translator_cost_per_word</code>,{" "}
                 <code>usd_to_uyu_rate</code>).
               </p>
             </div>
@@ -584,10 +576,10 @@ export function Admin() {
                 <li className="flex gap-2">
                   <span className="text-brand-600">→</span>
                   <span>
-                    <strong>Reducir el tiempo de Andrea por mil palabras.</strong>{" "}
-                    Hoy estimamos {metrics.andreaMin1k} min/1000. Cada minuto
-                    menos es costo directo ahorrado — depende de cuánto feedback
-                    de Andrea se incorpore al pipeline.
+                    <strong>Negociar tarifa de traductora por volumen.</strong>{" "}
+                    Hoy: ${metrics.translatorCostPerWord} UYU/palabra (43% del
+                    ingreso). Si el volumen sube, negociar un descuento por
+                    escala puede mover el margen significativamente.
                   </span>
                 </li>
                 <li className="flex gap-2">
